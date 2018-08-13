@@ -7,7 +7,7 @@ int bufp = 0;
 
 int getch(void)
 {
-	return (bufp > 0) ? buf[--bufp] : getchar();
+	return (bufp > 0) ? buf[--bufp] : 0;
 }
 
 void ungetch(int c)

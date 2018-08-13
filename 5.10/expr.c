@@ -14,12 +14,14 @@ int main(int argc, char *argv[])
 		printf("Expecting operators and operands.\n");
 		return 0;
 	}
+	
+	printf("argc = %d\n", argc);
 
 	for(i = 1; i < argc; i++)
 	{
 		ungets(argv[i]);
 		type = getop(s);
-
+		printf("i = %d, s = %s\n", i, s);
 		switch(type)
 		{
 			case NUMBER:
@@ -49,7 +51,7 @@ int main(int argc, char *argv[])
 				if(iop2 != 0)
 					push(iop1 % iop2);
 				else
-					printf("error: ero modulus\n");
+					printf("error: zero modulus\n");
 				break;
 			default:
 				printf("error: entering the unknown.\n");
