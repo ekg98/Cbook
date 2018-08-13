@@ -11,17 +11,18 @@ int main(int argc, char *argv[])
 
 	if(argc == 1)	/* if you don't enter any data */
 	{
-		printf("Expecting operators and operands.\n");
+		printf("Expecting operators and operands in polish notation format.\n");
+		printf("Example:\n");
+		printf("expr 2 3 4 + *\n");
+		printf("\t14\n");
+		printf("\nNote: in a bash terminal add a \\ directly before the asterisk of multiplication.\n");
 		return 0;
 	}
-	
-	printf("argc = %d\n", argc);
 
 	for(i = 1; i < argc; i++)
 	{
 		ungets(argv[i]);
 		type = getop(s);
-		printf("i = %d, s = %s\n", i, s);
 		switch(type)
 		{
 			case NUMBER:
