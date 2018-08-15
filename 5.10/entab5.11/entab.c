@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	if(argc == 1)
 	{
 		printf("Entab:  Converts spaces into tabs in input text.  ");
-		printf("Input required.  Please provide a list of text with tab sequences.\n");
+		printf("Input required.  Please provide a list of text with spaces.\n");
 		printf("Some terminals like bash require double quotes like \"text\".\n");
 		return 1;
 	}
