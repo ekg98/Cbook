@@ -54,9 +54,7 @@ int main(int argc, char *argv[])
 					return -1;
 		
 				strcpy(charLine, argv[i]);
-				printf("%s", charLine);
 				detab(charLine, MAXIMUM, intTabSize, intStartPosition);
-				printf("\n12345678901234567890124567890\n");
 				printf("%s", charLine);
 		}
 	}
