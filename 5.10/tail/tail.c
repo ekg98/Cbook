@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 #include "alloc.h"	/* header file for alloc function char *alloc(int) */
 
 int getaline(char *s, int limit);
@@ -20,15 +21,24 @@ int main(int argc, char *argv[])
 			if(*argv[argumentCounter] == '-')
 			{
 				if(isdigit(*(argv[argumentCounter] + 1)))
-					lineQuantity = atoi(*(argv[argumentCounter] + 1));
+					lineQuantity = atoi(argv[argumentCounter] + 1);
 				else
 				{
 					printf("Argument error.\n");
 					return -1;
 				}
 			}
+			argumentCounter++;
 		}
+
 	}
+
+	char *lines[lineQuantity];	/* Allocate pointer array for lines based off default value or arguments */
+
+
+
+	printf("argument value = %d\n", lineQuantity);
+	
 	
 	return 0;
 }
@@ -37,7 +47,7 @@ int getaline(char *s, int limit)
 {
 	int c, i;
 
-	for(i = 0; i < lim - 1 && (c = getchar()) != EOF && c != '\n'; i++)
+	for(i = 0; i < limit - 1 && (c = getchar()) != EOF && c != '\n'; i++)
 		s[i] = c;
 
 	if(c == '\n')

@@ -1,5 +1,7 @@
 /* alloc.c:  Contains the functions for alloc.  */
 
+#include <stdlib.h>
+
 #define ALLOCSIZE	10000
 
 static char allocbuf[ALLOCSIZE];
