@@ -3,10 +3,50 @@
 /*  of section 5.6, not in a two-dimensional array of fixed size. */
 
 #include <stdio.h>
+#include <ctype.h>
 #include "alloc.h"	/* header file for alloc function char *alloc(int) */
+
+int getaline(char *s, int limit);
 
 int main(int argc, char *argv[])
 {
+	int argumentCounter = 1;
+	int lineQuantity = 10;	/* default line quantity */
+
+	if(argc > 1)	/* sets lineQuantity if a argument is present */
+	{
+		while(argumentCounter < argc)
+		{
+			if(*argv[argumentCounter] == '-')
+			{
+				if(isdigit(*(argv[argumentCounter] + 1)))
+					lineQuantity = atoi(*(argv[argumentCounter] + 1));
+				else
+				{
+					printf("Argument error.\n");
+					return -1;
+				}
+			}
+		}
+	}
+	
 	return 0;
 }
 
+int getaline(char *s, int limit)
+{
+	int c, i;
+
+	for(i = 0; i < lim - 1 && (c = getchar()) != EOF && c != '\n'; i++)
+		s[i] = c;
+
+	if(c == '\n')
+	{
+		s[i] = c;
+		i++;
+	}
+
+	s[i] = '\0';
+
+	return i;
+}
