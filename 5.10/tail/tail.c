@@ -53,8 +53,10 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	for(i = 0; i < lineQuantity - 1; i++)
-		/*if(lines[i] != NULL)*/
+	printf("\n");
+
+	for(i = lineQuantity - 1; i >= 0; i--)
+		if(lines[i] != NULL)
 			printf("%s",lines[i]);
 	
 	return 0;
@@ -93,14 +95,11 @@ int push(char *string, char *linesarray[], int linelimit)
 
 	strcpy(newstring, string);			/* copy the new string */
 	
-	tempstring = *linesarray;
-	*linesarray = newstring;
 
-	for(i = 1; i < linelimit - 1; i++)
-	{
-		linesarray[i] = tempstring;		/* put the tempstring into the current linearray location */
-	       	tempstring = *((linesarray + i) + 1);	/* get the next string pointer for the next loop run */
-	}
+	while(--linelimit)
+	       	linesarray[linelimit] = linesarray[linelimit - 1];
+
+	linesarray[0] = newstring;
 
 	return 0;
 }
