@@ -7,23 +7,28 @@
 #include "getaline.h"
 
 #define	MAXLINES	5000	/* max #lines to be sorted */
+#define	TRUE	1
+#define	FALSE	0
 
 char *lineptr[MAXLINES];	/* pointers to text lines */
 
+/* function declarations */
 int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
-
 void qsortnew(void *lineptr[], int left, int right, int (*comp)(void *, void *));
 int numcmp(char *, char *);
+int rnumcmp(char *, char *);
+int rstrcmp(char *, char *);
 
 int main(int argc, char *argv[])
 {
+	int numeric = FALSE;
+	int reverse = FALSE;
 	int nlines;
 	int i;
 	int argcounter = 1;
-	void (*compare);
+	void (*compare) = NULL;
 
-	compare = strcmp;
 
 	if(argc > 1)
 	{
@@ -34,10 +39,10 @@ int main(int argc, char *argv[])
 				while(*(argv[i] + argcounter))			/* walk through the string and search for valid arguments */
 				{
 					if(*(argv[i] + argcounter) == 'n')	/* n for numeric ordering */
-						compare = numcmp;
-											
+						numeric = TRUE;					
+
 					if(*(argv[i] + argcounter) == 'r')	/* r for reverse search */
-						;
+						reverse = TRUE;
 
 					argcounter++;
 				}
@@ -46,6 +51,18 @@ int main(int argc, char *argv[])
 		}
 
 	}
+
+	if(numeric == FALSE && reverse == FALSE)	/* default activated if no flags are present */
+		compare = strcmp;
+
+	if(numeric == FALSE && reverse == TRUE)		/* Activate reverse strcmp if flag solo r was detected */
+		compare = rstrcmp;
+
+	if(numeric == TRUE && reverse == FALSE)		/* Activate numaric compare if flag solo n was detected*/
+		compare = numcmp;
+
+	if(numeric == TRUE && reverse == TRUE)		/* Activate reverse numeric compare if the flags were a combination of r & n */
+		compare = rnumcmp;
 
 	if((nlines = readlines(lineptr, MAXLINES)) >= 0)
 	{
@@ -60,6 +77,7 @@ int main(int argc, char *argv[])
 	}
 }
 
+/* Qsort */
 void qsortnew(void *v[], int left, int right, int (*comp)(void *, void *))
 {
 	int i, last;
@@ -79,6 +97,7 @@ void qsortnew(void *v[], int left, int right, int (*comp)(void *, void *))
 	qsortnew(v, last + 1, right, comp);
 }
 
+/* standard numcmp */
 int numcmp(char *s1, char *s2)
 {
 	double v1, v2;
@@ -94,6 +113,32 @@ int numcmp(char *s1, char *s2)
 		return 0;
 }
 
+/* Reverse numcmp */
+int rnumcmp(char *s2, char *s1)
+{
+	double v1, v2;
+
+	v1 = atof(s1);
+	v2 = atof(s2);
+
+	if(v1 < v2)
+		return -1;
+	else if(v1 > v2)
+		return 1;
+	else
+		return 0;
+}
+
+/* Reverse strcmp */
+int rstrcmp(char *t, char *s)
+{
+	for( ; *s == *t; s++, t++)
+		if(*s == '\0')
+			return 0;
+	return *s - *t;
+}
+
+/* swap function for qsort */
 void swap(void *v[], int i, int j)
 {
 	void *temp;
@@ -103,6 +148,7 @@ void swap(void *v[], int i, int j)
 	v[j] = temp;
 }
 
+/* readlines */
 int readlines(char *lineptr[], int maxlines)
 {
 	int len, nlines;
@@ -126,6 +172,7 @@ int readlines(char *lineptr[], int maxlines)
 	
 }
 
+/* writelines */
 void writelines(char *lineptr[], int nlines)
 {
 	int i;
