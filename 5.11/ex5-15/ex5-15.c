@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 	int i;
 	int argcounter = 1;
 	void (*compare) = NULL;
-	void (*sortfunction)(void **, int, int , int (*)(void *, void *));
+	void (*sortfunction)(void **, int, int , int (*)(void *, void *));	/* Function pointer for qsorting function declared to hold pointer array, two ints, and a function pointer to two voids and return a int */
 
 	if(argc > 1)
 	{
@@ -84,14 +84,14 @@ int main(int argc, char *argv[])
 	if(numeric == TRUE && reverse == TRUE)		/* Activate reverse numeric compare if the flags were a combination of r & n */
 		compare = rnumcmp;
 
-	if(fold == TRUE)
+	if(fold == TRUE)				/* Activate folding.  (Ignore case during sorting operations).  Changes the sorting function depending on the f flag. */
 		sortfunction = qsortignorecase;
 	else
 		sortfunction = qsortnew;
 
 	if((nlines = readlines(lineptr, MAXLINES)) >= 0)
 	{
-		sortfunction((void **) lineptr, 0, nlines - 1, (int (*)(void *, void *))(compare));
+		sortfunction((void **) lineptr, 0, nlines - 1, (int (*)(void *, void *))(compare));	/* Function pointer.  Can change depending on f flag */
 		writelines(lineptr, nlines);
 		return 0;
 	}
