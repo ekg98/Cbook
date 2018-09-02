@@ -23,6 +23,9 @@ void qsortignorecase(void *lineptr[], int left, int right, int (*comp)(void *, v
 int numcmp(char *, char *);
 int strcmpfold(char *, char *);
 int dordercmp(char *, char *);
+int rdordercmp(char *, char *);
+int dordercmpfold(char *, char *);
+int rdordercmpfold(char *, char *);
 int rnumcmp(char *, char *);
 int rstrcmp(char *, char *);
 int rstrcmpfold(char *, char*);
@@ -87,30 +90,45 @@ int main(int argc, char *argv[])
 
 	}
 
-	if(numeric == FALSE && reverse == FALSE && fold == FALSE && dorder == FALSE)		/* default activated if no flags are present */
+	if(numeric == FALSE && reverse == FALSE && fold == FALSE && dorder == FALSE)		/* strcmp no flags */
 		compare = strcmp;
 
-	if(numeric == FALSE && reverse == FALSE && fold == TRUE && dorder == FALSE)		/* Activate strcmpfold if f flag is solo. (ignore case) */
-		compare = strcmpfold;
-
-	if(numeric == FALSE && reverse == FALSE && fold == FALSE && dorder == TRUE)
-		compare = dordercmp;
-
-	if(numeric == FALSE && reverse == TRUE && fold == FALSE && dorder == FALSE)		/* Activate reverse strcmp if flag solo r was detected */
+	if(numeric == FALSE && reverse == TRUE && fold == FALSE && dorder == FALSE)		/* Reverse strcmp -r */
 		compare = rstrcmp;
 
-	if(numeric == FALSE && reverse == TRUE && fold == TRUE && dorder = FALSE)			/* Activate reverse strcmpfold if flag rf was detected */
+	if(numeric == FALSE && reverse == FALSE && fold == TRUE && dorder == FALSE)		/* strcmpfold -f (ignore case) */
+		compare = strcmpfold;
+
+	if(numeric == FALSE && reverse == TRUE && fold == TRUE && dorder == FALSE)		/* reverse strcmpfold -rf */
 		compare = rstrcmpfold;
 
-	if(numeric == TRUE && reverse == FALSE && fold == FALSE)		/* Activate numaric compare if flag solo n was detected*/
+	if(numeric == FALSE && reverse == FALSE && fold == FALSE && dorder == TRUE)		/* Directory order -d */
+		compare = dordercmp;
+
+	if(numeric == FALSE && reverse == TRUE && fold == FALSE && dorder == TRUE)		/* reverse directory order -d */
+		compare = rdordercmp;
+
+	if(numeric == FALSE && reverse == FALSE && fold == TRUE && dorder == TRUE)		/* directory order fold -df */
+		compare = dordercmpfold;
+
+	if(numeric == FALSE && reverse == TRUE && fold == TRUE && dorder == TRUE)		/* reverse directory order fold -drf */
+		compare = rdordercmpfold;
+
+	if(numeric == TRUE && reverse == FALSE && fold == FALSE)				/* numaric -n */
 		compare = numcmp;
 
-	if(numeric == TRUE && reverse == TRUE && fold == FALSE)			/* Activate reverse numeric compare if the flags were a combination of r & n */
+	if(numeric == TRUE && reverse == TRUE && fold == FALSE)					/* reverse numeric -rn */
 		compare = rnumcmp;
 
-	if(numeric == TRUE && fold == TRUE)					/* Generate error if fold is used with number compare */
+	if(numeric == TRUE && fold == TRUE)							/* Generate error if fold is used with number compare */
 	{
-		printf("Error: Fold option only works on strings.");
+		printf("Error: Fold option only works on strings.\n");
+		return 1;
+	}
+
+	if(numeric == TRUE && dorder == TRUE)							/* Generate error if directory order is used with number compare */
+	{
+		printf("Error: Directory order only works on strings.\n");
 		return 1;
 	}
 
@@ -164,19 +182,9 @@ int numcmp(char *s1, char *s2)
 }
 
 /* Reverse numcmp */
-int rnumcmp(char *s2, char *s1)
+int rnumcmp(char *s1, char *s2)
 {
-	double v1, v2;
-
-	v1 = atof(s1);
-	v2 = atof(s2);
-
-	if(v1 < v2)
-		return -1;
-	else if(v1 > v2)
-		return 1;
-	else
-		return 0;
+	return numcmp(s2, s1);
 }
 
 /* strcmpfold */
@@ -193,30 +201,47 @@ int dordercmp(char *s, char *t)
 {
 	for( ; *s != '\0'; s++, t++)
 	{
-		if(*s != *t && (isalnum(*s) || isspace(*s)) && (isalnum(*t) || isspace(*t))
+		if(*s != *t && (isalnum(*s) || isspace(*s)) && (isalnum(*t) || isspace(*t)))
 			return *s - *t;
 	}
 
 	return 0;
 }
 
+/* rdordercmp */
+int rdordercmp(char *s, char *t)
+{
+	return dordercmp(t, s);
+}
+
+/* dordercmpfold */
+int dordercmpfold(char *s, char *t)
+{
+	for( ; *s != '\0'; s++, t++)
+	{
+		if(tolower(*s) != tolower(*t) && (isalnum(tolower(*s)) || isspace(*s)) && (isalnum(tolower(*t)) || isspace(*t)))
+			return tolower(*s) - tolower(*t);
+	}
+
+	return 0;
+}
+
+/* rdordercmpfold */
+int rdordercmpfold(char *s, char *t)
+{
+	return dordercmpfold(t, s);
+}
 
 /* Reverse strcmp */
-int rstrcmp(char *t, char *s)
+int rstrcmp(char *s, char *t)
 {
-	for( ; *s == *t; s++, t++)
-		if(*s == '\0')
-			return 0;
-	return *s - *t;
+	return strcmp(t, s);
 }
 
 /* Reverse strcmpfold */
-int rstrcmpfold(char *t, char *s)
+int rstrcmpfold(char *s, char *t)
 {
-	for( ; tolower(*s) == tolower(*t); s++, t++)
-		if(*s == '\0')
-			return 0;
-	return tolower(*s) - tolower(*t);
+	return strcmpfold(t, s);
 }
 
 /* swap function for qsort */
