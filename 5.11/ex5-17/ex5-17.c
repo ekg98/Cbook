@@ -2,6 +2,7 @@
 /* Exercise is already modified to comply with 5-14. */
 /* Exercise is already modified to comply with 5-15. */
 /* Exercise is already modified to comply with 5-16. */
+/* Exercise is already modified to comply with 5-17. */
 
 #include <stdio.h>
 #include <string.h>
@@ -60,7 +61,8 @@ int main(int argc, char *argv[])
 				printf("-r\tReverse sorting.\n");
 				printf("-f\tFold upper case and lower case together.  (ignore case)\n");
 				printf("-d\tDirectory order.  Sort only by letters, numbers, and whitespace.\n");
-				printf("-3\t Field sorting.  Sorts by the field represented by a number.  Change 3 to suit which field you are sorting by.\n");
+				printf("-3\tField sorting.  Sorts by the field represented by a number.  Example 3 sorts the lines by the 3rd word from the left.\n");
+				printf("  \tWhen the field number is too large and the text line does not contain that many fields it defaults to first field sort.\n");
 				return 0;
 			}
 
@@ -84,7 +86,16 @@ int main(int argc, char *argv[])
 					else if(*(argv[i] + argcounter) == 'd')						/* d for directory order. */
 						dorder = TRUE;
 					else if(isdigit(*(argv[i] + argcounter)))					/* -(number) determines the field to sort by */
+					{
 						field = atoi(argv[i] + 1);
+						if(field > 1)								/* take human readable input and adjust for array calculations. */
+							field -= 1;
+						else
+						{
+							printf("Error: Invalid field size\n");
+							return 1;
+						}
+					}
 					else
 					{
 						printf("Error: Unknown argument!\n");
@@ -155,27 +166,33 @@ int main(int argc, char *argv[])
 	}
 }
 
-/* Qsort */
+/* Qsort:  Modified for field sorting */
 void qsortnew(void *v[], int left, int right, int (*comp)(void *, void *), void *vfield[])
 {
-	int i, last;
+	int i, last, lastvfield;
 	void swap(void *v[], int, int);
 
 	if(left >= right)
 		return;
 
+	swap(vfield, left, (left + right) /2);
 	swap(v, left, (left + right) / 2);
 	last = left;
+	lastvfield = left;
 
 	for(i = left + 1; i <= right; i++)
 		if((*comp)(vfield[i], vfield[left]) < 0)
+		{
+			swap(vfield, ++lastvfield, i);
 			swap(v, ++last, i);
+		}
+	swap(vfield, left, lastvfield);
 	swap(v, left, last);
 	qsortnew(v, left, last - 1, comp, vfield);
 	qsortnew(v, last + 1, right, comp, vfield);
 }
 
-/* sortfield */
+/* sortfield:  Takes a false array, the primary array, which field in the string to sort, and how many lines are in the array.  Finds the fields and returns pointers to the start of the selected field */
 void sortfield(void *vfield[], int fieldselect,int numlines, void *lines[])
 {
 	int i;
@@ -185,18 +202,15 @@ void sortfield(void *vfield[], int fieldselect,int numlines, void *lines[])
 	for(i = 0; i < numlines; i++)
 		vfield[i] = lines[i];
 
-	for(i = 0; i < numlines; i++)
+	for(i = 0; i < numlines; i++)					/* look through the main array and find field select amount of fields.  */
 	{
 		for(letterpos = 0, fieldcounter = 0; (*(((char *)lines[i]) + letterpos)) != '\0' && fieldcounter < fieldselect; letterpos++)
 			if(isspace(*(((char *)lines[i]) + letterpos)))
 				fieldcounter++;
-	
-		
-		printf("fieldcounter = %d letterpos = %d line = %s\n", fieldcounter, letterpos, lines[i] + letterpos );
 
-		vfield[i] = lines[i] + letterpos;
+		if(fieldcounter == fieldselect)				/* if user tries to sort a field that is not there just leave it as it was before */
+			vfield[i] = lines[i] + letterpos;		/* if correct amount of fields exist.  Update vfield with the location of the field to sort */
 	}
-
 }
 
 /* standard numcmp */
