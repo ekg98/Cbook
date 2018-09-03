@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
 	int nlines;
 	int i;
 	int argcounter = 1;
+	int fieldargcounter;
 	void (*compare) = NULL;
 
 
@@ -87,12 +88,19 @@ int main(int argc, char *argv[])
 						dorder = TRUE;
 					else if(isdigit(*(argv[i] + argcounter)))					/* -(number) determines the field to sort by */
 					{
-						field = atoi(argv[i] + 1);
+						fieldargcounter = argcounter;
+
+						while(isdigit(*(argv[i] + argcounter)))					/* Traverse through the argument in search of all the numbers.  Advance argcounter to area with no number */
+							argcounter++;
+
+						field = atoi(argv[i] + fieldargcounter);				/* convert ascii number to actual number for calculations.  Give function a pointer that is the start of number */
+
 						if(field > 1)								/* take human readable input and adjust for array calculations. */
 							field -= 1;
-						else
+						
+						if(field < 1)
 						{
-							printf("Error: Invalid field size\n");
+							printf("Error: Invalid field size!\n");
 							return 1;
 						}
 					}
@@ -101,7 +109,11 @@ int main(int argc, char *argv[])
 						printf("Error: Unknown argument!\n");
 						return 1;
 					}
-					argcounter++;
+					
+					if(*(argv[i] + argcounter) == '\0')						/* when traversing the argument in search of numbers and you hit a terminator.  Dont increment argcounter */
+						;
+					else
+						argcounter++;
 				}
 			}
 		
@@ -156,6 +168,7 @@ int main(int argc, char *argv[])
 	{
 		sortfield((void **) fieldptr, field, nlines, (void **)lineptr);
 		qsortnew((void **) lineptr, 0, nlines - 1, (int (*)(void *, void *))(compare), (void **) fieldptr);	/* Function pointer.  Can change depending on f flag */
+		printf("\n");
 		writelines(lineptr, nlines);
 		return 0;
 	}
