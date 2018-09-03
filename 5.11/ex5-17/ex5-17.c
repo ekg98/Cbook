@@ -15,12 +15,12 @@
 #define	FALSE	0
 
 char *lineptr[MAXLINES];	/* pointers to text lines */
+char *fieldptr[MAXLINES];	/* pointer to field to be sorted */
 
 /* function declarations */
 int readlines(char *lineptr[], int nlines);
 void writelines(char *lineptr[], int nlines);
-void qsortnew(void *lineptr[], int left, int right, int (*comp)(void *, void *));
-void qsortignorecase(void *lineptr[], int left, int right, int (*comp)(void *, void *));
+void qsortnew(void *lineptr[], int left, int right, int (*comp)(void *, void *), void *fieldptr[]);
 int numcmp(char *, char *);
 int strcmpfold(char *, char *);
 int dordercmp(char *, char *);
@@ -30,6 +30,7 @@ int rdordercmpfold(char *, char *);
 int rnumcmp(char *, char *);
 int rstrcmp(char *, char *);
 int rstrcmpfold(char *, char*);
+void sortfield(void *field[], int, int, void *line[]);
 
 int main(int argc, char *argv[])
 {
@@ -37,10 +38,13 @@ int main(int argc, char *argv[])
 	int reverse = FALSE;
 	int fold = FALSE;
 	int dorder = FALSE;
+	int field = 0;
 	int nlines;
 	int i;
 	int argcounter = 1;
 	void (*compare) = NULL;
+
+
 
 	if(argc > 1)
 	{
@@ -56,6 +60,7 @@ int main(int argc, char *argv[])
 				printf("-r\tReverse sorting.\n");
 				printf("-f\tFold upper case and lower case together.  (ignore case)\n");
 				printf("-d\tDirectory order.  Sort only by letters, numbers, and whitespace.\n");
+				printf("-3\t Field sorting.  Sorts by the field represented by a number.  Change 3 to suit which field you are sorting by.\n");
 				return 0;
 			}
 
@@ -68,16 +73,18 @@ int main(int argc, char *argv[])
 					return 1;
 				}
 
-				while(*(argv[i] + argcounter))			/* walk through the string and search for valid arguments */
+				while(*(argv[i] + argcounter))								/* walk through the string and search for valid arguments */
 				{
-					if(*(argv[i] + argcounter) == 'n')	/* n for numeric ordering */
+					if(*(argv[i] + argcounter) == 'n')						/* n for numeric ordering */
 						numeric = TRUE;					
-					else if(*(argv[i] + argcounter) == 'r')	/* r for reverse search */
+					else if(*(argv[i] + argcounter) == 'r')						/* r for reverse search */
 						reverse = TRUE;
-					else if(*(argv[i] + argcounter) == 'f')	/* f for folding case.  (ignore case) */
+					else if(*(argv[i] + argcounter) == 'f')						/* f for folding case.  (ignore case) */
 						fold = TRUE;
-					else if(*(argv[i] + argcounter) == 'd')
+					else if(*(argv[i] + argcounter) == 'd')						/* d for directory order. */
 						dorder = TRUE;
+					else if(isdigit(*(argv[i] + argcounter)))					/* -(number) determines the field to sort by */
+						field = atoi(argv[i] + 1);
 					else
 					{
 						printf("Error: Unknown argument!\n");
@@ -90,6 +97,7 @@ int main(int argc, char *argv[])
 		}
 
 	}
+
 
 	if(numeric == FALSE && reverse == FALSE && fold == FALSE && dorder == FALSE)		/* strcmp no flags */
 		compare = strcmp;
@@ -135,7 +143,8 @@ int main(int argc, char *argv[])
 
 	if((nlines = readlines(lineptr, MAXLINES)) >= 0)
 	{
-		qsortnew((void **) lineptr, 0, nlines - 1, (int (*)(void *, void *))(compare));	/* Function pointer.  Can change depending on f flag */
+		sortfield((void **) fieldptr, field, nlines, (void **)lineptr);
+		qsortnew((void **) lineptr, 0, nlines - 1, (int (*)(void *, void *))(compare), (void **) fieldptr);	/* Function pointer.  Can change depending on f flag */
 		writelines(lineptr, nlines);
 		return 0;
 	}
@@ -147,7 +156,7 @@ int main(int argc, char *argv[])
 }
 
 /* Qsort */
-void qsortnew(void *v[], int left, int right, int (*comp)(void *, void *))
+void qsortnew(void *v[], int left, int right, int (*comp)(void *, void *), void *vfield[])
 {
 	int i, last;
 	void swap(void *v[], int, int);
@@ -159,11 +168,35 @@ void qsortnew(void *v[], int left, int right, int (*comp)(void *, void *))
 	last = left;
 
 	for(i = left + 1; i <= right; i++)
-		if((*comp)(v[i], v[left]) < 0)
+		if((*comp)(vfield[i], vfield[left]) < 0)
 			swap(v, ++last, i);
 	swap(v, left, last);
-	qsortnew(v, left, last - 1, comp);
-	qsortnew(v, last + 1, right, comp);
+	qsortnew(v, left, last - 1, comp, vfield);
+	qsortnew(v, last + 1, right, comp, vfield);
+}
+
+/* sortfield */
+void sortfield(void *vfield[], int fieldselect,int numlines, void *lines[])
+{
+	int i;
+	int letterpos;
+	int fieldcounter;
+
+	for(i = 0; i < numlines; i++)
+		vfield[i] = lines[i];
+
+	for(i = 0; i < numlines; i++)
+	{
+		for(letterpos = 0, fieldcounter = 0; (*(((char *)lines[i]) + letterpos)) != '\0' && fieldcounter < fieldselect; letterpos++)
+			if(isspace(*(((char *)lines[i]) + letterpos)))
+				fieldcounter++;
+	
+		
+		printf("fieldcounter = %d letterpos = %d line = %s\n", fieldcounter, letterpos, lines[i] + letterpos );
+
+		vfield[i] = lines[i] + letterpos;
+	}
+
 }
 
 /* standard numcmp */
