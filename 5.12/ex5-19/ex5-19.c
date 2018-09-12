@@ -1,4 +1,4 @@
-/* uncdl:  Convert word description to declaration */
+/* Exercise 5-19.  Modify undcl so that it does not add redundant parentheses to declarations */
 
 #include <stdio.h>
 #include <string.h>
@@ -6,6 +6,8 @@
 #include "getungetch.h"
 
 #define	MAXTOKEN	100
+#define	YES	1
+#define	NO	0
 
 enum {NAME, PARENS, BRACKETS};
 
@@ -13,6 +15,7 @@ int gettoken(void);
 int tokentype;
 char token[MAXTOKEN];
 char out[100];
+int nextToken;
 
 int main()
 {
@@ -23,13 +26,29 @@ int main()
 	{
 		strcpy(out, token);
 
-		while((type = gettoken()) != '\n')
+		while((type = gettoken()) != '\n' && nextToken != '\n')
+		{
 			if(type == PARENS || type == BRACKETS)
 				strcat(out, token);
-			else if(type == '*')				
+			else if(type == '*')					/* Detecting a pointer dcl to something */	
 			{
-				sprintf(temp, "(*%s)", out);
-				strcpy(out, temp);
+				nextToken = gettoken();
+				if(nextToken == '\n')				/* if you find a pointer dcl at the end of a line, amend out to point to something */
+				{
+					sprintf(temp, "*%s", out);
+					strcpy(out, temp);
+					break;
+				}
+				else if(nextToken == NAME)			/* if you find a name after a pointer dcl */
+				{
+					sprintf(temp, "*%s", out);
+					sprintf(out, "%s %s", token, temp);
+				}
+				else						/* pointer to a function */
+				{	
+					sprintf(temp, "(*%s)", out);
+					strcpy(out, temp);
+				}
 			}
 			else if(type == NAME)
 			{
@@ -38,6 +57,7 @@ int main()
 			}
 			else
 				printf("invalid input at %s\n", token);
+		}
 
 		printf("%s\n", out);
 			
