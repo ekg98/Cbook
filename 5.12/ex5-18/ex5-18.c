@@ -52,7 +52,6 @@ void dcl(void)
 	for(ns = 0; gettoken() == '*'; )	/* call gettoken to count *'s if some are found keep track of them */
 		ns++;
 
-	printf("dcl tokentype = %d", tokentype);
 	if(tokentype != '\n')	/* call dirdcl to find everything else thats not a * */
 		dirdcl();
 
@@ -101,6 +100,9 @@ void dirdcl(void)
 			strcat(out, " of");
 		}
 	}
+
+	if(tokentype == '(')						/* if a open paren after it looked for a group of closed parens is found, run dirdcl back through to look for new works or some type of error */
+		dirdcl();
 }
 
 /* gettoken:  Gets a character at a time from the input and analyzes it.  Depending on what it is the return tokentype is changed. */
