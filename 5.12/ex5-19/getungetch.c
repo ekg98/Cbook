@@ -19,3 +19,9 @@ void ungetch(int c)
 	else
 		buf[bufp++] = c;
 }
+
+void resetbuf(void)
+{
+	bufp = 0;
+	buf[0] = '\0';
+}

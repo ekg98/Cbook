@@ -9,9 +9,11 @@
 #define	YES	1
 #define	NO	0
 
-enum {NAME, PARENS, BRACKETS};
+enum {NAME, PARENS, BRACKETS, ERROR, CLEAN};
 
 int gettoken(void);
+void reset(void);
+
 int tokentype;
 char token[MAXTOKEN];
 char out[100];
@@ -25,7 +27,6 @@ int main()
 	while(gettoken() != EOF)
 	{
 		strcpy(out, token);
-
 		while((type = gettoken()) != '\n' && nextToken != '\n')
 		{
 			if(type == PARENS || type == BRACKETS)
@@ -56,10 +57,15 @@ int main()
 				strcpy(out, temp);
 			}
 			else
+			{
 				printf("invalid input at %s\n", token);
+				tokentype = ERROR;
+				reset();
+				break;
+			}
 		}
-
 		printf("%s\n", out);
+		reset();
 			
 	}
 	return 0;
@@ -105,4 +111,21 @@ int gettoken(void)
 	else
 		return tokentype = c;
 
+}
+
+void reset(void)
+{
+	out[0] = '\0';
+	token[0] = '\0';
+	nextToken = CLEAN;
+
+	resetbuf();
+
+	if(tokentype == ERROR)
+	{
+		printf("Error: Please try again.\n");
+		tokentype = CLEAN;
+	}
+	else
+		tokentype = CLEAN;
 }
