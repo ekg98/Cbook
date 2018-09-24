@@ -10,7 +10,7 @@
 
 #define	MAXTOKEN	100
 
-enum { NAME, PARENS, BRACKETS, ERROR, CLEAN, ARG, ARGPTR };
+enum { NAME, PARENS, BRACKETS, ERROR, CLEAN, ARG, ARGPTR, ARGARRAY };
 
 void dcl(void);
 void dirdcl(void);
@@ -83,6 +83,16 @@ void dirdcl(void)
 	{
 		strcpy(name, token);
 	}
+	else if(tokentype == ARG)
+	{
+		strcat(out, " function passing ");
+		strcat(out, token);
+	}
+	else if(tokentype == ARGPTR)
+	{
+		strcat(out, " function passing a pointer to ");
+		strcat(out, token);
+	}
 	else
 	{
 		printf("error: expected name or (dcl)\n");		/* if you have a open paren and dirdcl didn't find a name.  Generate a error message */
@@ -147,7 +157,7 @@ int gettoken(void)
 
 		if(strcmp(token, "int") == 0)
 		{
-			while((c == getch()) == ' ' || c == '\t')
+			while((c = getch()) == ' ' || c == '\t')
 				;
 
 			if(c == '(')
@@ -157,9 +167,15 @@ int gettoken(void)
 			}
 			else if(c == '*')
 				return tokentype = ARGPTR;
-			else if(c == ',')
-				return tokentype = ARG;
+			else if(c == ',' || c == ')')
+			{
+				if(c == ')')
+					ungetch(c);
 
+				return tokentype = ARG;
+			}
+			else
+				ungetch(c);
 			
 
 		}
