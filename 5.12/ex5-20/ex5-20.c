@@ -16,6 +16,7 @@ void dcl(void);
 void dirdcl(void);
 int gettoken(void);
 void recovery(void);
+int argcheck(char *);
 
 int tokentype;			/* type of last token */
 char token[MAXTOKEN];		/* last token string */
@@ -155,7 +156,7 @@ int gettoken(void)
 		*p = '\0';
 		ungetch(c);
 
-		if(strcmp(token, "int") == 0)
+		if(argcheck(token) == 0)
 		{
 			while((c = getch()) == ' ' || c == '\t')
 				;
@@ -207,4 +208,20 @@ void recovery(void)
 	}
 	else
 		tokentype = CLEAN;
+}
+
+int argcheck(char *arg)
+{
+	char * arglist[] = { "int", "char", "float", "double", "void" };
+	int i, argmax, argreturnvalue;
+
+	argmax = sizeof arglist / sizeof(char *);
+
+	for(i = 0; i < argmax; i++)
+	{
+		if((argreturnvalue = strcmp(arg, arglist[i])) == 0)
+			return 0;
+	}
+
+	return argreturnvalue;
 }
