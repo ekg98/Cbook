@@ -10,7 +10,7 @@
 
 #define	MAXTOKEN	100
 
-enum { NAME, PARENS, BRACKETS, ERROR, CLEAN, ARG, ARGPTR, ARGARRAY };
+enum { NAME, PARENS, BRACKETS, ERROR, CLEAN, ARG, ARGPTR, ARGARRAY, YES, NO };
 
 void dcl(void);
 void dirdcl(void);
@@ -23,6 +23,7 @@ char token[MAXTOKEN];		/* last token string */
 char name[MAXTOKEN];		/* identifier name */
 char datatype[MAXTOKEN];	/* data type = char, int, etc. */
 char out[1000];			/* output string */
+int foundarg = NO;		/* toggle if detected a function argument */
 
 int main()
 {
@@ -73,9 +74,23 @@ void dirdcl(void)
 	if(tokentype == '(')						/* sitting on a open paren.  Next could be a name or a dcl */
 	{
 		dcl();							/* check to see if you have a dcl or a dirdcl.  Go through the opened paren area and look for *, name, and opposing paren */
-		if(tokentype != ')')
+		if(tokentype != ')' && foundarg == NO)
 		{
 			printf("error: missing )\n");			/* if a opposing paren was not found then generate error message */
+			tokentype = ERROR;
+			return;
+		}
+		else if(tokentype == ')' && foundarg == YES)
+		{
+			foundarg = NO;
+			type = gettoken();
+			return;
+		}
+		else
+		{
+			printf("error: unknown\n");
+			printf("tt = %d\n", tokentype);
+			printf("whoops: maybe some kind of array detected.  Logic not implemented yet...\n");
 			tokentype = ERROR;
 			return;
 		}
@@ -86,6 +101,8 @@ void dirdcl(void)
 	}
 	else if(tokentype == ARG || tokentype == ARGPTR)	/* if found a argument of some kind */
 	{
+		foundarg = YES;
+		
 		/* First ARG and ARGPTR check.  This deposits the first argument into the out string */
 		if(tokentype == ARG)
 		{
@@ -112,6 +129,19 @@ void dirdcl(void)
 				strcat(out, token);
 			}
 		}
+
+		if(tokentype == ')')
+		{
+			strcat(out, " function returning");
+		}
+		else
+		{
+			printf("error: missing ) after function arguments.\n");
+			tokentype = ERROR;
+			return;
+		}
+
+
 	}
 	else
 	{
@@ -119,7 +149,7 @@ void dirdcl(void)
 		tokentype = ERROR;
 		return;
 	}
-
+	
 	if(tokentype != ')')
 	{
 		while((type = gettoken()) == PARENS || type == BRACKETS)
@@ -137,6 +167,7 @@ void dirdcl(void)
 
 	if(tokentype == '(')						/* if a open paren after it looked for a group of closed parens is found, run dirdcl back through to look for new works or some type of error */
 		dirdcl();
+
 }
 
 /* gettoken:  Gets a character at a time from the input and analyzes it.  Depending on what it is the return tokentype is changed. */
