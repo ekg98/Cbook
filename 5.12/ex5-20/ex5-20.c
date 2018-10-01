@@ -84,15 +84,34 @@ void dirdcl(void)
 	{
 		strcpy(name, token);
 	}
-	else if(tokentype == ARG)
+	else if(tokentype == ARG || tokentype == ARGPTR)	/* if found a argument of some kind */
 	{
-		strcat(out, " function passing ");
-		strcat(out, token);
-	}
-	else if(tokentype == ARGPTR)
-	{
-		strcat(out, " function passing a pointer to ");
-		strcat(out, token);
+		/* First ARG and ARGPTR check.  This deposits the first argument into the out string */
+		if(tokentype == ARG)
+		{
+			strcat(out, " function passing ");
+			strcat(out, token);
+		}
+		else if(tokentype == ARGPTR)
+		{
+			strcat(out, " function passing a pointer to ");
+			strcat(out, token);
+		}
+	
+		/* Checks to see if there is a second or more arguments,  deposits them in the out string */
+		while((type = gettoken()) == ARG || type == ARGPTR)
+		{
+			if(type == ARG)
+			{
+				strcat(out, " function passing ");
+				strcat(out, token);
+			}
+			else if(type == ARGPTR)
+			{
+				strcat(out, " function passing a pointer to ");
+				strcat(out, token);
+			}
+		}
 	}
 	else
 	{
@@ -101,15 +120,18 @@ void dirdcl(void)
 		return;
 	}
 
-	while((type = gettoken()) == PARENS || type == BRACKETS)
+	if(tokentype != ')')
 	{
-		if(type == PARENS)					/* if dirdcl found a complete set of parens.  You are a function */
-			strcat(out, " function returning");
-		else							/* else if your not parens dirdcl must have found you must be brackets */
+		while((type = gettoken()) == PARENS || type == BRACKETS)
 		{
-			strcat(out, " array");
-			strcat(out, token);				/* the name of the array */
-			strcat(out, " of");
+			if(type == PARENS)					/* if dirdcl found a complete set of parens.  You are a function */
+				strcat(out, " function returning");
+			else							/* else if your not parens dirdcl must have found you must be brackets */
+			{
+				strcat(out, " array");
+				strcat(out, token);				/* the name of the array */
+				strcat(out, " of");
+			}
 		}
 	}
 
@@ -212,7 +234,7 @@ void recovery(void)
 
 int argcheck(char *arg)
 {
-	char * arglist[] = { "int", "char", "float", "double", "void" };
+	char *arglist[] = { "int", "char", "float", "double", "void" };
 	int i, argmax, argreturnvalue;
 
 	argmax = sizeof arglist / sizeof(char *);
