@@ -1,5 +1,6 @@
 /* Exercise 5-20.  Expand dcl to handle declarations with function argument types, qualifiers like const, and so on. */
 /* Modified for Exercise 5-18. */
+/* Modified for Exercise 5-20.  Not perfect, does not handle unknown types in function arguments. */
 
 /* Because ritche didn't specify what recover means.  I take it to mean restart from beginning.  Thats what this program does if it encounters a error. */
 
@@ -10,20 +11,23 @@
 
 #define	MAXTOKEN	100
 
-enum { NAME, PARENS, BRACKETS, ERROR, CLEAN, ARG, ARGPTR, ARGARRAY, YES, NO };
+enum { NAME, PARENS, BRACKETS, ERROR, CLEAN, ARG, ARGPTR, ARGARRAY, MODIFIER, YES, NO };
 
 void dcl(void);
 void dirdcl(void);
 int gettoken(void);
 void recovery(void);
 int argcheck(char *);
+int modcheck(char *);
 
 int tokentype;			/* type of last token */
 char token[MAXTOKEN];		/* last token string */
 char name[MAXTOKEN];		/* identifier name */
 char datatype[MAXTOKEN];	/* data type = char, int, etc. */
+char modifier[MAXTOKEN];	/* last modifier */
 char out[1000];			/* output string */
 int foundarg = NO;		/* toggle if detected a function argument */
+int foundmod = NO;		/* toggle if detected a modifier for a datatype */
 
 int main()
 {
@@ -80,17 +84,15 @@ void dirdcl(void)
 			tokentype = ERROR;
 			return;
 		}
-		else if(tokentype == ')' && foundarg == YES)
+		else if(tokentype == ')')	/* dcl returns ) when it has processed arguments */
 		{
 			foundarg = NO;
 			type = gettoken();
 			return;
 		}
-		else
+		else				/* error handling if dcl returns garbage it cant handle */
 		{
 			printf("error: unknown\n");
-			printf("tt = %d\n", tokentype);
-			printf("whoops: maybe some kind of array detected.  Logic not implemented yet...\n");
 			tokentype = ERROR;
 			return;
 		}
@@ -99,42 +101,88 @@ void dirdcl(void)
 	{
 		strcpy(name, token);
 	}
-	else if(tokentype == ARG || tokentype == ARGPTR)	/* if found a argument of some kind */
+	else if(tokentype == ARG || tokentype == ARGPTR || tokentype == ARGARRAY || tokentype == MODIFIER)	/* if found a argument of some kind */
 	{
 		foundarg = YES;
 		
-		/* First ARG and ARGPTR check.  This deposits the first argument into the out string */
+		/* First ARG, ARGPTR, ARGARRAY, and MODIFIER  check.  This deposits the first argument into the out string */
 		if(tokentype == ARG)
 		{
 			strcat(out, " function passing ");
 			strcat(out, token);
+			strcat(out, ",");
 		}
 		else if(tokentype == ARGPTR)
 		{
 			strcat(out, " function passing a pointer to ");
 			strcat(out, token);
+			strcat(out, ",");
 		}
-	
-		/* Checks to see if there is a second or more arguments,  deposits them in the out string */
-		while((type = gettoken()) == ARG || type == ARGPTR)
+		else if(tokentype == ARGARRAY)
 		{
-			if(type == ARG)
-			{
-				strcat(out, " function passing ");
-				strcat(out, token);
-			}
-			else if(type == ARGPTR)
-			{
-				strcat(out, " function passing a pointer to ");
-				strcat(out, token);
-			}
+			strcat(out, " function passing an array of ");
+			strcat(out, token);
+			strcat(out, ",");
+		}
+		else if(tokentype == MODIFIER)
+		{
+			foundmod = YES;
+			strcpy(modifier, token);
 		}
 
-		if(tokentype == ')')
+		/* Checks to see if there is a second or more arguments,  deposits them in the out string */
+		while((type = gettoken()) == ARG || type == ARGPTR || type == ARGARRAY || type == MODIFIER)
+		{
+			if(type == ARG)			/* found a argument, adjust output string and add modifier */
+			{
+				strcat(out, " function passing ");
+				if(foundmod == YES)
+				{
+					foundmod = NO;
+					strcat(out, modifier);
+					strcat(out, " ");
+				}
+				strcat(out, token);
+				strcat(out, ",");
+
+			}
+			else if(type == ARGPTR)		/* found a pointer argument, adjust output string and add modifier */
+			{
+				strcat(out, " function passing a pointer to ");
+				if(foundmod == YES)
+				{
+					foundmod = NO;
+					strcat(out, modifier);
+					strcat(out, " ");
+				}
+				strcat(out, token);
+				strcat(out, ",");
+			}
+			else if(type == ARGARRAY)	/* found a array argument, adjust output string and add modifier */ 
+			{
+				strcat(out, " function passing an array of ");
+				if(foundmod == YES)
+				{
+					foundmod = NO;
+					strcat(out, modifier);
+					strcat(out, " ");
+				}
+				strcat(out, token);
+				strcat(out, ",");
+			}
+			else if(type == MODIFIER)	/* found a modifier in a function declaration, record so and store */
+			{
+				foundmod = YES;
+				strcpy(modifier, token);
+			}
+
+		}
+
+		if(tokentype == ')')		/* checks if its the end of a function declaration */
 		{
 			strcat(out, " function returning");
 		}
-		else
+		else				/* error handling */
 		{
 			printf("error: missing ) after function arguments.\n");
 			tokentype = ERROR;
@@ -208,20 +256,35 @@ int gettoken(void)
 
 		*p = '\0';
 		ungetch(c);
+		
+		if(modcheck(token) == 0)	/* check to see if the token is a modifier */
+			return tokentype = MODIFIER;
 
-		if(argcheck(token) == 0)
+		if(argcheck(token) == 0)	/* check to see if the token is a argument */
 		{
-			while((c = getch()) == ' ' || c == '\t')
+			while((c = getch()) == ' ' || c == '\t')	/* remove any white space to next character */
 				;
 
-			if(c == '(')
+			if(c == '(')				/* if encountering a ( after a token assume its a name */
 			{
 				ungetch(c);
 				return tokentype = NAME;
 			}
-			else if(c == '*')
+			else if(c == '*')				/* if the next character makes it a pointer */
 				return tokentype = ARGPTR;
-			else if(c == ',' || c == ')')
+			else if(c == '[')				/* if found a set of brackets it makes it a array */
+			{
+				c = getch();
+				if(c == ']')
+					return tokentype = ARGARRAY;
+				else
+				{
+					printf("error: missing ]\n");
+					return tokentype = ERROR;
+				}
+			}
+
+			else if(c == ',' || c == ')')	/* run to the end of the argument or the end of the definition */
 			{
 				if(c == ')')
 					ungetch(c);
@@ -254,7 +317,7 @@ void recovery(void)
 
 	resetbuf();
 
-	if(tokentype == ERROR)
+	if(tokentype == ERROR)	/* generate message if error, not so if just recovering */ 
 	{
 		printf("Error: Please try again.\n");
 		tokentype = CLEAN;
@@ -263,18 +326,36 @@ void recovery(void)
 		tokentype = CLEAN;
 }
 
+/* argcheck:  checks for valid arguments that are of standard datatypes */
 int argcheck(char *arg)
 {
 	char *arglist[] = { "int", "char", "float", "double", "void" };
 	int i, argmax, argreturnvalue;
 
-	argmax = sizeof arglist / sizeof(char *);
+	argmax = sizeof arglist / sizeof(char *);	/* calculates amount of arguments in the list */
 
-	for(i = 0; i < argmax; i++)
+	for(i = 0; i < argmax; i++)			/* looks for those arguments, if found return 0 */
 	{
 		if((argreturnvalue = strcmp(arg, arglist[i])) == 0)
 			return 0;
 	}
 
-	return argreturnvalue;
+	return argreturnvalue;				/* if not found return discrepancy */
+}
+
+/* modcheck:  checks for valid modifiers that are of standard types */
+int modcheck(char *modifier)
+{
+	char *modlist[] = { "short", "long", "signed", "unsigned" };
+	int i, modmax, modreturnvalue;
+
+	modmax = sizeof modlist / sizeof(char *);	/* calculates amount of modifiers in the list */
+
+	for(i = 0; i < modmax; i++)			/* looks for those modifiers, if found return 0 */
+	{
+		if((modreturnvalue = strcmp(modifier, modlist[i])) == 0)
+			return 0;
+	}
+
+	return modreturnvalue;				/* if not found return discrepancy */
 }
