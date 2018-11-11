@@ -2,6 +2,7 @@
 /* control lines.  Write a better version.  */
 
 /* string constants complete */
+/* comments complete */
 /* preprocessor control lines complete */
 
 #include <stdio.h>
@@ -37,6 +38,7 @@ struct key keytab[] = {
 	"break",	0,
 	"case",		0,
 	"char",		0,
+	"comment('s)",	0,
 	"const",	0,
 	"continue",	0,
 	"default",	0,
@@ -55,6 +57,7 @@ int main()
 
 	while(getword(word, MAXWORD) != EOF)
 	{
+		printf("%s\n", word);
 		if(isalpha(word[0]) || word[0] == '#')
 		{
 			n = binsearch(word, keytab, NKEYS);
@@ -62,7 +65,7 @@ int main()
 				keytab[n].count++;
 		}
 
-		if(word[0] == '\"')
+		if(word[0] == '"')
 		{
 			while(*wpointer != '\0')
 				wpointer++;
@@ -70,9 +73,27 @@ int main()
 			if(*wpointer == '\0')
 			{
 				--wpointer;
-				if(*wpointer == '\"')
+				if(*wpointer == '"')
 				{
 					n = binsearch("string constant('s)", keytab, NKEYS);
+					if(n >= 0)
+						keytab[n].count++;
+				}
+			}
+		}
+
+		if(word[0] == '/' && word[1] == '*')
+		{
+			while(*wpointer != '\0')
+				wpointer++;
+
+			--wpointer;
+			if(*wpointer == '/')
+			{
+				--wpointer;
+				if(*wpointer == '*')
+				{
+					n = binsearch("comment('s)", keytab, NKEYS);
 					if(n >= 0)
 						keytab[n].count++;
 				}
@@ -124,8 +145,28 @@ int getword(char *word, int lim)
 
 	if(c != EOF)
 		*w++ = c;
-	
-	if(c == '#')
+
+	/* comments */
+	if(c == '/')
+	{
+		if((*w = getch()) == '*')
+		{
+			w++;
+			for(; --lim > 0; w++)
+			{
+				*w = getch();
+				if(*w == '/' && c == '*')	/* tests to see if c previously held * */
+				{
+					w++;
+					break;
+				}
+
+				c = *w;
+			}
+		}
+	}
+	/* preprocessor control directives */	
+	else if(c == '#')
 	{
 		for(; --lim > 0; w++)
 			if(!isalnum(*w = getch()))
@@ -134,19 +175,21 @@ int getword(char *word, int lim)
 				break;
 			}
 	}
-	else if(c == '\"')
+	/* string constants */
+	else if(c == '"')
 	{
 		for(; --lim > 0; w++)
 		{
 			*w = getch();
 
-			if(*w == '\"' || *w == '\n')
+			if(*w == '"' || *w == '\n')
 			{
 				w++;
 				break;
 			}
 		}
 	}
+	/* keywords */
 	else
 	{
 		if(!isalpha(c))
