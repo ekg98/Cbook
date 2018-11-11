@@ -1,9 +1,12 @@
 /* Exercise 6-1.  Our version of getword does not properly handle underscores, string constants, comments, or preprocessor */
 /* control lines.  Write a better version.  */
 
+/* properly handles underscores complete */
 /* string constants complete */
 /* comments complete */
 /* preprocessor control lines complete */
+
+/* disclaimer warning: does not contain all keywords or possibilities */
 
 #include <stdio.h>
 #include <ctype.h>
@@ -57,7 +60,6 @@ int main()
 
 	while(getword(word, MAXWORD) != EOF)
 	{
-		printf("%s\n", word);
 		if(isalpha(word[0]) || word[0] == '#')
 		{
 			n = binsearch(word, keytab, NKEYS);
@@ -155,13 +157,13 @@ int getword(char *word, int lim)
 			for(; --lim > 0; w++)
 			{
 				*w = getch();
-				if(*w == '/' && c == '*')	/* tests to see if c previously held * */
+				if(*w == '/' && c == '*')	/* tests to see if c previously held asterisk */
 				{
 					w++;
 					break;
 				}
 
-				c = *w;
+				c = *w;				/* if the loop got this far store previous character in c for next run's check */
 			}
 		}
 	}
@@ -189,17 +191,17 @@ int getword(char *word, int lim)
 			}
 		}
 	}
-	/* keywords */
+	/* keywords now accepts underscores */
 	else
 	{
-		if(!isalpha(c))
+		if(!(isalpha(c) || c == '_'))
 		{
 			*w = '\0';
 			return c;
 		}
 
 		for(; --lim > 0; w++)
-			if(!isalnum(*w = getch()))
+			if(!(isalnum(*w = getch()) || *w == '_'))
 			{
 				ungetch(*w);
 				break;
