@@ -1,6 +1,9 @@
 /* Exercise 6-1.  Our version of getword does not properly handle underscores, string constants, comments, or preprocessor */
 /* control lines.  Write a better version.  */
 
+/* string constants complete */
+/* preprocessor control lines complete */
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -20,6 +23,16 @@ int binsearch(char *, struct key *, int);
 
 struct key keytab[] = {
 	"#define",	0,
+	"#elif",	0,
+	"#else",	0,
+	"#endif",	0,
+	"#error",	0,
+	"#if",		0,
+	"#ifdef",	0,
+	"#ifndef",	0,
+	"#include",	0,
+	"#pragma",	0,
+	"#undef",	0,
 	"auto",		0,
 	"break",	0,
 	"case",		0,
@@ -27,6 +40,7 @@ struct key keytab[] = {
 	"const",	0,
 	"continue",	0,
 	"default",	0,
+	"string constant('s)",	0,
 	"unsigned",	0,
 	"void",		0,
 	"volatile",	0,
@@ -37,6 +51,7 @@ int main()
 {
 	int n;
 	char word[MAXWORD];
+	char *wpointer = word;
 
 	while(getword(word, MAXWORD) != EOF)
 	{
@@ -45,6 +60,23 @@ int main()
 			n = binsearch(word, keytab, NKEYS);
 			if(n >= 0)
 				keytab[n].count++;
+		}
+
+		if(word[0] == '\"')
+		{
+			while(*wpointer != '\0')
+				wpointer++;
+			
+			if(*wpointer == '\0')
+			{
+				--wpointer;
+				if(*wpointer == '\"')
+				{
+					n = binsearch("string constant('s)", keytab, NKEYS);
+					if(n >= 0)
+						keytab[n].count++;
+				}
+			}
 		}
 	}
 
@@ -101,6 +133,19 @@ int getword(char *word, int lim)
 				ungetch(*w);
 				break;
 			}
+	}
+	else if(c == '\"')
+	{
+		for(; --lim > 0; w++)
+		{
+			*w = getch();
+
+			if(*w == '\"' || *w == '\n')
+			{
+				w++;
+				break;
+			}
+		}
 	}
 	else
 	{
