@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include "addtree.h"
+#include "talloc.h"
 
 #define	MAXWORD	100
 
