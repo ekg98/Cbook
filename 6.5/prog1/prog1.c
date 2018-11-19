@@ -5,6 +5,7 @@
 #include <string.h>
 #include "addtree.h"
 #include "tnode.h"
+#include "getaword.h"
 
 #define	MAXWORD	100
 
@@ -17,7 +18,7 @@ int main()
 
 	root = NULL;
 
-	while(getword(word, MAXWORD) != EOF)
+	while(getaword(word, MAXWORD) != EOF)
 		if(isalpha(word[0]))
 			root = addtree(root, word);
 

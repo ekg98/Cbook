@@ -1,6 +1,7 @@
 #include "talloc.h"
 #include "tnode.h"
 #include <stddef.h>
+#include <string.h>
 
 /* addtree:  Add a node with w, at or below p */
 struct tnode *addtree(struct tnode *p, char *w)
