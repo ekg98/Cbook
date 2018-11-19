@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "addtree.h"
-#include "talloc.h"
+#include "tnode.h"
 
 #define	MAXWORD	100
 

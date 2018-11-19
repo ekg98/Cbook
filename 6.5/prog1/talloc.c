@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "talloc.h"
+#include "tnode.h"
 
 /* talloc:  make a tnode */
 struct tnode *talloc(void)

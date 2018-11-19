@@ -1,4 +1,5 @@
 #include "talloc.h"
+#include "tnode.h"
 #include <stddef.h>
 
 /* addtree:  Add a node with w, at or below p */
