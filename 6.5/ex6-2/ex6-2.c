@@ -14,7 +14,7 @@
 
 #define	MAXWORD	100
 
-void treeprint(struct tnode *);
+char *treeprint(struct tnode *, int, char *);
 
 int main(int argc, char *argv[])
 {
@@ -69,18 +69,38 @@ int main(int argc, char *argv[])
 		if(isalpha(word[0]))
 			root = addtree(root, word);
 
-	treeprint(root);
+	treeprint(root, argWordLength, NULL);
 
 	return 0;
 }
 
 /* treeprint: in-order print of tree p */
-void treeprint(struct tnode *p)
+char *treeprint(struct tnode *p, int length, char *parentWord)
 {
+	char *returnedWord = NULL;
 	if(p != NULL)
 	{
-		treeprint(p->left);
-		printf("%4d %s\n", p->count, p->word);
-		treeprint(p->right);
+		/* checking left child.  Returning its word */
+		returnedWord = treeprint(p->left, length, NULL);
+
+		/* check left child to parent.  */
+		if(strlen(p->word) >= length && returnedWord != NULL && strncmp(p->word, returnedWord, length) == 0)
+		{
+			printf("%4d %s\n", p->left->count, p->left->word);
+			printf("%4d %s\n", p->count, p->word);
+		}
+
+		/* check right child to parent */
+		else if(strlen(p->word) >= length && parentWord != NULL && strncmp(p->word, parentWord, length) == 0)
+		{
+			printf("%4d %s\n", NULL, parentWord);	/* this results in duplicates if parent was already printed */
+			printf("%4d %s\n", p->count, p->word);
+		}
+
+		/* checking right child.  Sending its parent */
+		treeprint(p->right, length, p->word);
+
+		return p->word;
 	}
+	return NULL;
 }
