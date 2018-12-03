@@ -18,10 +18,11 @@
 void treeprint(struct tnode *, int);
 
 /* enums */
-enum {ROOT, LEFTMATCH, RIGHTMATCH, NOTHING};
+enum {YES, NO};
 
 /* global variables */
-struct tnode *previous = NULL;
+struct tnode *previous = NULL;	//pointer to hold first element in the tree
+
 
 int main(int argc, char *argv[])
 {
@@ -84,14 +85,24 @@ int main(int argc, char *argv[])
 /* treeprint: in-order print of tree p */
 void treeprint(struct tnode *p, int length)
 {
+
+	static int firstPrint = YES;	//toggle to determine if we should print first word.
+
 	if(p != NULL)
 	{
 
 		treeprint(p->left, length);
 		if(previous != NULL && strncmp(p->word, previous->word, length) == 0)
+		{
+			//firstPrint - encountering first matching word make sure to print it.
+			if(firstPrint == YES)
+				printf("%4d %s\n", previous->count, previous->word);
+
 			printf("%4d %s\n", p->count, p->word);
+
+			firstPrint = NO;	//Toggle that we are not on first print anymore.
+		}
 		previous = p;
 		treeprint(p->right, length);
-
 	}
 }
