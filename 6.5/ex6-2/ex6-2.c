@@ -20,10 +20,6 @@ void treeprint(struct tnode *, int);
 /* enums */
 enum {YES, NO};
 
-/* global variables */
-struct tnode *previous = NULL;	//pointer to hold first element in the tree
-
-
 int main(int argc, char *argv[])
 {
 	struct tnode *root;
@@ -85,7 +81,7 @@ int main(int argc, char *argv[])
 /* treeprint: in-order print of tree p */
 void treeprint(struct tnode *p, int length)
 {
-
+	static struct tnode *previous = NULL;	//previous tnode structure to check current tnode structure against.
 	static int firstPrint = YES;	//toggle to determine if we should print first word.
 
 	if(p != NULL)
