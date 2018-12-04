@@ -17,7 +17,8 @@ int getaword(char *word, int lim)
 	/* comments */
 	if(c == '/')
 	{
-		if((*w = getch()) == '*')
+		*w = getch();
+		if(*w  == '*')
 		{
 			w++;
 			for(; --lim > 0; w++)
@@ -30,6 +31,16 @@ int getaword(char *word, int lim)
 				}
 
 				c = *w;				/* if the loop got this far store previous character in c for next run's check */
+			}
+		}
+		else if(*w == '/')	// checks for cpp style comments
+		{
+			w++;
+			for(; --lim > 0; w++)
+			{
+				*w = getch();
+				if(*w == '\n')
+					break;
 			}
 		}
 	}

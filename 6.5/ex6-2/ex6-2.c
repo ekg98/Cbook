@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
 	char word[MAXWORD];
 	int argWordLength = 6;
 	int i, argCounter = 0;
+	int isVariable = NO;
 
 	for(i = 1; i < argc; i++)
 	{
@@ -70,9 +71,51 @@ int main(int argc, char *argv[])
 	root = NULL;
 
 	while(getaword(word, MAXWORD) != EOF)
-		if(isalpha(word[0]))
+	{
+		// if a variable is found and its correct
+		if(isVariable == YES && isalpha(word[0]))
+		{
 			root = addtree(root, word);
+			isVariable = NO;
+		}
 
+		// skip strings
+		if(word[0] == '"')
+			continue;
+
+		// skip comments
+		if((word[0] == '/' && word[1] == '*') || (word[0] == '/' && word[1] == '/'))
+			continue;
+
+		// skip preprocessor directives
+		if(word[0] == '#')
+			continue;
+
+		// handles basic data types.  Could be expanded for modifiers
+		if(strcmp(word, "int") == 0)
+		{
+			isVariable = YES;
+			continue;
+		}
+		else if(strcmp(word, "char") == 0)
+		{
+			isVariable = YES;
+			continue;
+		}
+		else if(strcmp(word,"float") == 0)
+		{
+			isVariable = YES;
+			continue;
+		}
+		else if(strcmp(word, "double") == 0)
+		{
+			isVariable = YES;
+			continue;
+		}
+
+	}
+
+	// Display the argWordLength formatted tree
 	treeprint(root, argWordLength);
 
 	return 0;
