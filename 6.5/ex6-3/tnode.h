@@ -3,7 +3,8 @@
 struct tnode
 {
 	char *word;
-	int count;
+	int line;
 	struct tnode *left;
+	struct tnode *center;
 	struct tnode *right;
 };

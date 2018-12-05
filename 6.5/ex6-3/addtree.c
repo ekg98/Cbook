@@ -4,7 +4,7 @@
 #include <string.h>
 
 /* addtree:  Add a node with w, at or below p */
-struct tnode *addtree(struct tnode *p, char *w)
+struct tnode *addtree(struct tnode *p, char *w, int lineNumber)
 {
 	int cond;
 
@@ -12,11 +12,11 @@ struct tnode *addtree(struct tnode *p, char *w)
 	{
 		p = talloc();
 		p->word = nstrdup(w);
-		p->count = 1;
+		p->line = lineNumber;
 		p->left = p->right = NULL;
 	}
-	else if((cond = strcmp(w, p->word)) == 0)
-		p->count++;
+	//else if((cond = strcmp(w, p->word)) == 0)  put new word here if found duplicate  record new structure with line number
+	//	p->count++;
 	else if(cond < 0)
 		p->left = addtree(p->left, w);
 	else

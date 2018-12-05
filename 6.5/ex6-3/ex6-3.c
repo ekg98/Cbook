@@ -16,12 +16,13 @@ int main()
 {
 	struct tnode *root;
 	char word[MAXWORD];
+	int lineNumber = 0;
 
 	root = NULL;
 
-	while(getaword(word, MAXWORD) != EOF)
+	while(getaword(word, MAXWORD, lineNumber) != EOF)
 		if(isalpha(word[0]))
-			root = addtree(root, word);
+			root = addtree(root, word, lineNumber);
 
 	treeprint(root);
 
