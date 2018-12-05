@@ -2,7 +2,7 @@
 /* names that are identical in the first 6 characters, but different somewhere thereafter.  Don't count words within */
 /* strings and comments.  Make 6 a parameter that can be set from the command line. */
 
-/* This program uses my version of getaword.  This is a modified variant of the main program in chapter 6.5 */
+/* This program uses my version of getaword.  This is a modified variant of the main program in chapter 6.5.  Compliant for cpp style comments now */
 
 #include <stdio.h>
 #include <ctype.h>
@@ -18,7 +18,7 @@
 void treeprint(struct tnode *, int);
 
 /* enums */
-enum {YES, NO};
+enum {NO, YES};
 
 int main(int argc, char *argv[])
 {
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	char word[MAXWORD];
 	int argWordLength = 6;
 	int i, argCounter = 0;
-	int isVariable = NO;
+	int isVariable = NO, isModifier = NO;
 
 	for(i = 1; i < argc; i++)
 	{
@@ -77,21 +77,56 @@ int main(int argc, char *argv[])
 		{
 			root = addtree(root, word);
 			isVariable = NO;
+			isModifier = NO;
+			continue;
 		}
 
 		// skip strings
 		if(word[0] == '"')
+		{
+			isVariable = NO;
+			isModifier = NO;
 			continue;
-
+		}
 		// skip comments
 		if((word[0] == '/' && word[1] == '*') || (word[0] == '/' && word[1] == '/'))
+		{
+			isVariable = NO;
+			isModifier = NO;
 			continue;
+		}
 
 		// skip preprocessor directives
 		if(word[0] == '#')
+		{
+			isVariable = NO;
+			isModifier = NO;
 			continue;
+		}
 
-		// handles basic data types.  Could be expanded for modifiers
+		// look for modifiers
+		if(strcmp(word, "long") == 0)
+		{
+			isModifier = YES;
+			continue;
+		}
+		else if(strcmp(word, "short") == 0)
+		{
+			isModifier = YES;
+			continue;
+		}
+		else if(strcmp(word, "signed") == 0)
+		{
+			isModifier = YES;
+			continue;
+		}
+		else if(strcmp(word, "unsigned") == 0)
+		{
+			isModifier = YES;
+			continue;
+		}
+
+		// handles basic data types.
 		if(strcmp(word, "int") == 0)
 		{
 			isVariable = YES;
@@ -112,6 +147,13 @@ int main(int argc, char *argv[])
 			isVariable = YES;
 			continue;
 		}
+		else if(isModifier == YES)	// if word string made it this far then it must be a valid variable name after a modifier
+		{
+			root = addtree(root, word);
+			isVariable = NO;
+			isModifier = NO;
+		}
+
 
 	}
 
