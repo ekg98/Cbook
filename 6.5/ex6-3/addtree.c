@@ -15,8 +15,10 @@ struct tnode *addtree(struct tnode *p, char *w, int lineNumber)
 		p->line = lineNumber;
 		p->left = p->right = NULL;
 	}
-	//else if((cond = strcmp(w, p->word)) == 0)  put new word here if found duplicate  record new structure with line number
-	//	p->count++;
+	else if((cond = strcmp(w, p->word)) == 0)  //put new word here if found duplicate  record new structure with line number
+	{
+		
+	}
 	else if(cond < 0)
 		p->left = addtree(p->left, w);
 	else
