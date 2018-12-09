@@ -1,6 +1,9 @@
 /* Exercise 6-3.  Write a cross-referencer that prints a list of all words in a document, and for each word, a list of the line numbers on which it occurs. */
 /* Remove noise words like "the", "and", and so on. */
 
+// Need to modify getaword to give a line number
+// Need to modify treeprint to display line numbers
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
