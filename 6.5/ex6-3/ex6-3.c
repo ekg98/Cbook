@@ -19,13 +19,13 @@ int main()
 {
 	struct tnode *root;
 	char word[MAXWORD];
-	int lineNumber = 0;
+	int lineNumber = 1;
 
 	root = NULL;
 
-	while(getaword(word, MAXWORD, lineNumber) != EOF)
+	while(getaword(word, MAXWORD, &lineNumber) != EOF)
 		if(isalpha(word[0]))
-			root = addtree(root, word, lineNumber);
+			root = addtree(root, word, &lineNumber);
 
 	treeprint(root);
 
@@ -38,7 +38,8 @@ void treeprint(struct tnode *p)
 	if(p != NULL)
 	{
 		treeprint(p->left);
-		printf("%4d %s\n", p->count, p->word);
+		printf("line %d - %s\n", p->line, p->word);
+		treeprint(p->center);
 		treeprint(p->right);
 	}
 }

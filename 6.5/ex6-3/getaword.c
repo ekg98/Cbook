@@ -3,7 +3,7 @@
 #include "getungetch.h"
 
 /* getword:  get next word or character from input */
-int getaword(char *word, int lim)
+int getaword(char *word, int lim, int *lineNumber)
 {
 	int c;
 	char *w = word;
@@ -40,7 +40,10 @@ int getaword(char *word, int lim)
 			{
 				*w = getch();
 				if(*w == '\n')
+				{
+					*lineNumber += 1;
 					break;
+				}
 			}
 		}
 	}
@@ -48,11 +51,17 @@ int getaword(char *word, int lim)
 	else if(c == '#')
 	{
 		for(; --lim > 0; w++)
+		{
 			if(!isalnum(*w = getch()))
 			{
-				ungetch(*w);
+				if(*w == '\n')
+					*lineNumber += 1;
+				else
+					ungetch(*w);
+
 				break;
 			}
+		}
 	}
 	/* string constants */
 	else if(c == '"')
@@ -63,6 +72,9 @@ int getaword(char *word, int lim)
 
 			if(*w == '"' || *w == '\n')
 			{
+				if(*w == '\n')
+					*lineNumber += 1;
+
 				w++;
 				break;
 			}
@@ -73,16 +85,25 @@ int getaword(char *word, int lim)
 	{
 		if(!(isalpha(c) || c == '_'))
 		{
+			if(c == '\n')
+				*lineNumber += 1;
+
 			*w = '\0';
 			return c;
 		}
 
 		for(; --lim > 0; w++)
+		{
 			if(!(isalnum(*w = getch()) || *w == '_'))
 			{
-				ungetch(*w);
+				if(*w == '\n')
+					*lineNumber += 1;
+				else
+					ungetch(*w);
+
 				break;
 			}
+		}
 	}
 
 	*w = '\0';
