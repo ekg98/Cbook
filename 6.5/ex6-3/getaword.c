@@ -4,16 +4,17 @@
 
 enum {NO, YES};
 
-/* getword:  get next word or character from input */
+/* getword:  get next word or character from input.  lineNumber is a populated returned value that contains the line number of the word returned. */
 int getaword(char *word, int lim, int *lineNumber)
 {
 	int c;
 	char *w = word;
-	static int firstLine = YES;
-	static int internalLineNumber = 0;
+	int newLine = NO;
+	static int internalLineNumber = 1;
 
 	while(isspace(c = getch()))
-		;
+		if(c == '\n')
+			internalLineNumber += 1;
 
 	if(c != EOF)
 		*w++ = c;
@@ -28,7 +29,11 @@ int getaword(char *word, int lim, int *lineNumber)
 			for(; --lim > 0; w++)
 			{
 				*w = getch();
-				if(*w == '/' && c == '*')	/* tests to see if c previously held asterisk */
+
+				if(*w == '\n')
+					internalLineNumber += 1;
+
+				if(c == '*' && *w == '/')	/* tests to see if c previously held asterisk */
 				{
 					w++;
 					break;
@@ -45,10 +50,7 @@ int getaword(char *word, int lim, int *lineNumber)
 				*w = getch();
 				if(*w == '\n')
 				{
-					if(firstLine == NO)
-						internalLineNumber += 1;
-
-					firstLine = NO;
+					newLine = YES;
 					break;
 				}
 			}
@@ -62,12 +64,7 @@ int getaword(char *word, int lim, int *lineNumber)
 			if(!isalnum(*w = getch()))
 			{
 				if(*w == '\n')
-				{
-					if(firstLine == NO)
-						internalLineNumber += 1;
-
-					firstLine = NO;
-				}
+					newLine = YES;
 				else
 					ungetch(*w);
 
@@ -85,12 +82,7 @@ int getaword(char *word, int lim, int *lineNumber)
 			if(*w == '"' || *w == '\n')
 			{
 				if(*w == '\n')
-				{
-					if(firstLine == NO)
-						internalLineNumber += 1;
-
-					firstLine = NO;
-				}
+					newLine = YES;
 
 				w++;
 				break;
@@ -103,12 +95,7 @@ int getaword(char *word, int lim, int *lineNumber)
 		if(!(isalpha(c) || c == '_'))
 		{
 			if(c == '\n')
-			{
-				if(firstLine == NO)
-					internalLineNumber += 1;
-
-				firstLine = NO;
-			}
+				newLine = YES;
 
 			*w = '\0';
 			return c;
@@ -119,12 +106,7 @@ int getaword(char *word, int lim, int *lineNumber)
 			if(!(isalnum(*w = getch()) || *w == '_'))
 			{
 				if(*w == '\n')
-				{
-					if(firstLine == NO)
-						internalLineNumber += 1;
-
-					firstLine = NO;
-				}
+					newLine = YES;
 				else
 					ungetch(*w);
 
@@ -133,8 +115,12 @@ int getaword(char *word, int lim, int *lineNumber)
 		}
 	}
 
-	if(firstLine == YES)
-		*lineNumber = 1;
+	if(newLine == YES)
+	{
+		newLine = NO;
+		*lineNumber = internalLineNumber;
+		internalLineNumber += 1;
+	}
 	else
 		*lineNumber = internalLineNumber;
 
