@@ -18,8 +18,7 @@ struct tnode *addtree(struct tnode *p, char *w, int *lineNumber)
 	}
 	else if((cond = strcmp(w, p->word)) == 0)	// This determines if there is a duplicate word in the tree.  Then populate it linear.
 	{
-		if(p->center != NULL)
-			p->center = addtree(p->center, w, lineNumber);
+		p->center = addtree(p->center, w, lineNumber);
 	}
 	else if(cond < 0)
 		p->left = addtree(p->left, w, lineNumber);

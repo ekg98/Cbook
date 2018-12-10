@@ -2,11 +2,15 @@
 #include <stdio.h>
 #include "getungetch.h"
 
+enum {NO, YES};
+
 /* getword:  get next word or character from input */
 int getaword(char *word, int lim, int *lineNumber)
 {
 	int c;
 	char *w = word;
+	static int firstLine = YES;
+	static int internalLineNumber = 0;
 
 	while(isspace(c = getch()))
 		;
@@ -41,7 +45,10 @@ int getaword(char *word, int lim, int *lineNumber)
 				*w = getch();
 				if(*w == '\n')
 				{
-					*lineNumber += 1;
+					if(firstLine == NO)
+						internalLineNumber += 1;
+
+					firstLine = NO;
 					break;
 				}
 			}
@@ -55,7 +62,12 @@ int getaword(char *word, int lim, int *lineNumber)
 			if(!isalnum(*w = getch()))
 			{
 				if(*w == '\n')
-					*lineNumber += 1;
+				{
+					if(firstLine == NO)
+						internalLineNumber += 1;
+
+					firstLine = NO;
+				}
 				else
 					ungetch(*w);
 
@@ -73,7 +85,12 @@ int getaword(char *word, int lim, int *lineNumber)
 			if(*w == '"' || *w == '\n')
 			{
 				if(*w == '\n')
-					*lineNumber += 1;
+				{
+					if(firstLine == NO)
+						internalLineNumber += 1;
+
+					firstLine = NO;
+				}
 
 				w++;
 				break;
@@ -86,7 +103,12 @@ int getaword(char *word, int lim, int *lineNumber)
 		if(!(isalpha(c) || c == '_'))
 		{
 			if(c == '\n')
-				*lineNumber += 1;
+			{
+				if(firstLine == NO)
+					internalLineNumber += 1;
+
+				firstLine = NO;
+			}
 
 			*w = '\0';
 			return c;
@@ -97,7 +119,12 @@ int getaword(char *word, int lim, int *lineNumber)
 			if(!(isalnum(*w = getch()) || *w == '_'))
 			{
 				if(*w == '\n')
-					*lineNumber += 1;
+				{
+					if(firstLine == NO)
+						internalLineNumber += 1;
+
+					firstLine = NO;
+				}
 				else
 					ungetch(*w);
 
@@ -105,6 +132,11 @@ int getaword(char *word, int lim, int *lineNumber)
 			}
 		}
 	}
+
+	if(firstLine == YES)
+		*lineNumber = 1;
+	else
+		*lineNumber = internalLineNumber;
 
 	*w = '\0';
 	return word[0];
