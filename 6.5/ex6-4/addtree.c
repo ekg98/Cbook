@@ -24,3 +24,32 @@ struct tnode *addtree(struct tnode *p, char *w)
 
 	return p;
 }
+
+/* converttnode:  Converts a tnode type structure to be sorted by frequency of occurrence */
+struct tnode *converttnode(struct tnode *old)
+{
+	ind cond;
+	struct tnode *newTnode = NULL;
+	struct tnode *tempTnode = NULL;
+
+	if(old != NULL)
+	{
+		// copy the information
+		newTnode = talloc();
+		newTnode->word = nstrdup(old->word);
+		newTnode->count = old->count;
+		newTnode->left = NULL;
+		newTnode->right = NULL;
+
+		if(old->left != NULL)
+		{
+			if(old->left->count > old->count)
+				newTnode->right = old->left;
+				
+			//converttnode(old->left);
+		}
+		else if
+		//converttnode(old->right);
+	}
+	return newTnode;
+}
