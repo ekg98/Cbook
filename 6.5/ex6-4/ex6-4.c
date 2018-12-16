@@ -15,6 +15,8 @@ void treeprint(struct tnode *);
 int main()
 {
 	struct tnode *root;
+	struct tnode *numsort;
+
 	char word[MAXWORD];
 
 	root = NULL;
@@ -23,7 +25,12 @@ int main()
 		if(isalpha(word[0]))
 			root = addtree(root, word);
 
+	numsort = converttnode(root);
+
+	printf("\n\nSorted alphabetically.\n\n");
 	treeprint(root);
+	printf("\n\nSorted by occurrence.\n\n");
+	treeprint(numsort);
 
 	return 0;
 }

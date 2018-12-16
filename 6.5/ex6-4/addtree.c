@@ -1,9 +1,10 @@
 #include "talloc.h"
 #include "tnode.h"
+#include "addtree.h"
 #include <stddef.h>
 #include <string.h>
 
-/* addtree:  Add a node with w, at or below p */
+// addtree:  Add a node with w, at or below p
 struct tnode *addtree(struct tnode *p, char *w)
 {
 	int cond;
@@ -25,31 +26,37 @@ struct tnode *addtree(struct tnode *p, char *w)
 	return p;
 }
 
-/* converttnode:  Converts a tnode type structure to be sorted by frequency of occurrence */
+// converttnode:  Converts a tnode type structure to be sorted by frequency of occurrence
 struct tnode *converttnode(struct tnode *old)
 {
-	ind cond;
 	struct tnode *newTnode = NULL;
-	struct tnode *tempTnode = NULL;
 
 	if(old != NULL)
 	{
-		// copy the information
-		newTnode = talloc();
-		newTnode->word = nstrdup(old->word);
-		newTnode->count = old->count;
-		newTnode->left = NULL;
-		newTnode->right = NULL;
-
-		if(old->left != NULL)
-		{
-			if(old->left->count > old->count)
-				newTnode->right = old->left;
-				
-			//converttnode(old->left);
-		}
-		else if
-		//converttnode(old->right);
+		converttnode(old->left);
+		newTnode = addtreenumsort(old, old->word, old->count);
+		converttnode(old->right);
 	}
 	return newTnode;
+}
+
+// addtreenumsort:  Add words to a binary tree but in numerical order
+struct tnode *addtreenumsort(struct tnode *numsortedstruct, char *word, int num)
+{
+	if(numsortedstruct == NULL)
+	{
+		numsortedstruct = talloc();
+		numsortedstruct->word = nstrdup(word);
+		numsortedstruct->count = num;
+		numsortedstruct->left = NULL;
+		numsortedstruct->right = NULL;
+	}
+	else if(num == numsortedstruct->count)
+		numsortedstruct->right = addtreenumsort(numsortedstruct->right, word, num);
+	else if(num < numsortedstruct->count)
+		numsortedstruct->left = addtreenumsort(numsortedstruct->left, word, num);
+	else
+		numsortedstruct->right = addtreenumsort(numsortedstruct->right, word, num);
+
+	return numsortedstruct;
 }
