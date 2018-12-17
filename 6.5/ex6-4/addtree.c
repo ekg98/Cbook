@@ -3,6 +3,7 @@
 #include "addtree.h"
 #include <stddef.h>
 #include <string.h>
+#include <stdio.h>
 
 // addtree:  Add a node with w, at or below p
 struct tnode *addtree(struct tnode *p, char *w)
@@ -27,17 +28,21 @@ struct tnode *addtree(struct tnode *p, char *w)
 }
 
 // converttnode:  Converts a tnode type structure to be sorted by frequency of occurrence
-struct tnode *converttnode(struct tnode *old)
+struct tnode *converttnode(struct tnode *new, struct tnode *old)
 {
-	struct tnode *newTnode = NULL;
-
 	if(old != NULL)
 	{
-		converttnode(old->left);
-		newTnode = addtreenumsort(old, old->word, old->count);
-		converttnode(old->right);
+		if(new == NULL)
+		{
+			new = addtreenumsort(new, old->word, old->count);
+		}
+		else
+		{
+			converttnode(new->left, old->left);
+			new = addtreenumsort(new, old->word, old->count);
+			converttnode(new->right, old->right);
+		}
 	}
-	return newTnode;
 }
 
 // addtreenumsort:  Add words to a binary tree but in numerical order

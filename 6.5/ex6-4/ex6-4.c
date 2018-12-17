@@ -20,12 +20,13 @@ int main()
 	char word[MAXWORD];
 
 	root = NULL;
+	numsort = NULL;
 
 	while(getaword(word, MAXWORD) != EOF)
 		if(isalpha(word[0]))
 			root = addtree(root, word);
 
-	numsort = converttnode(root);
+	numsort = converttnode(numsort, root);
 
 	printf("\n\nSorted alphabetically.\n\n");
 	treeprint(root);
