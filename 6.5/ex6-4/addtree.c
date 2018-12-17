@@ -5,6 +5,8 @@
 #include <string.h>
 #include <stdio.h>
 
+enum {NO, YES};
+
 // addtree:  Add a node with w, at or below p
 struct tnode *addtree(struct tnode *p, char *w)
 {
@@ -32,17 +34,11 @@ struct tnode *converttnode(struct tnode *new, struct tnode *old)
 {
 	if(old != NULL)
 	{
-		if(new == NULL)
-		{
-			new = addtreenumsort(new, old->word, old->count);
-		}
-		else
-		{
-			converttnode(new->left, old->left);
-			new = addtreenumsort(new, old->word, old->count);
-			converttnode(new->right, old->right);
-		}
+		converttnode(new, old->left);
+		new = addtreenumsort(new, old->word, old->count);
+		converttnode(new, old->right);
 	}
+	return new;
 }
 
 // addtreenumsort:  Add words to a binary tree but in numerical order
@@ -59,9 +55,9 @@ struct tnode *addtreenumsort(struct tnode *numsortedstruct, char *word, int num)
 	else if(num == numsortedstruct->count)
 		numsortedstruct->right = addtreenumsort(numsortedstruct->right, word, num);
 	else if(num < numsortedstruct->count)
-		numsortedstruct->left = addtreenumsort(numsortedstruct->left, word, num);
-	else
 		numsortedstruct->right = addtreenumsort(numsortedstruct->right, word, num);
+	else
+		numsortedstruct->left = addtreenumsort(numsortedstruct->left, word, num);
 
 	return numsortedstruct;
 }
