@@ -1,4 +1,4 @@
-/* Main program from chapter 6.6 */
+// Exercise 6-5.  Write a function undef that will remove a name and definition from the table maintained by lookup and install.
 
 #include <stdio.h>
 #include "nlist.h"
@@ -9,12 +9,27 @@ int main()
 	struct nlist *hellolookup = NULL;
 
 	// install:  substitute Hello when looking up Hi
-	install("Hi","Hello");
+	install("Hi", "Hello");
 
 	// lookup:  Looking up Hi
-	hellolookup = lookup("Hi");
-	if(hellolookup != NULL)
-		printf("%s\n", hellolookup->defn);
+	if((hellolookup = lookup("Hi")) != NULL)
+		printf("before undef: %s = %s\n", hellolookup->name, hellolookup->defn);
+	else
+		printf("before undef: NULL\n");
+
+
+	// undef me
+	if(undef("Hi"))
+		printf("Undef sucessful.\n");
+	else
+		printf("Undef unsucessful.\n");
+
+
+	// check it after undef
+	if((hellolookup = lookup("Hi")) != NULL)
+		printf("after undef: %s = %s\n", hellolookup->name, hellolookup->defn);
+	else
+		printf("after undef: NULL\n");
 
 	return 0;
 }

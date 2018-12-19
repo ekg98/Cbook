@@ -3,3 +3,4 @@
 unsigned hash(char *);
 struct nlist *lookup(char *);
 struct nlist *install(char *, char *);
+int undef(char *);
