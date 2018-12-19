@@ -1,9 +1,9 @@
-// strdup:  make a duplicate of s
+// strdupe:  make a duplicate of s
 
 #include <stdlib.h>
 #include <string.h>
 
-char *strdup(char *s)
+char *strdupe(char *s)
 {
 	char *p;
 

@@ -2,8 +2,10 @@
 
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 #include "nlist.h"
-#include "strdup.h"
+#include "tablelookup.h"
+#include "strdupe.h"
 
 #define HASHSIZE	101
 
@@ -40,7 +42,7 @@ struct nlist *install(char *name, char *defn)
 	{
 		np = (struct nlist *) malloc(sizeof(*np));
 
-		if(np == NULL || (np->name = strdup(name)) = NULL)
+		if(np == NULL || (np->name = strdupe(name)) == NULL)
 			return NULL;
 
 		hashval = hash(name);
@@ -50,7 +52,7 @@ struct nlist *install(char *name, char *defn)
 	else
 		free((void *) np->defn);
 
-	if((np->defn = strdup(defn)) == NULL)
+	if((np->defn = strdupe(defn)) == NULL)
 		return NULL;
 
 	return np;
