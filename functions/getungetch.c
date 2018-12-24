@@ -24,7 +24,6 @@ void ungetch(int c)
 // ungets:  Put a string back into the buffer
 void ungets(char *word)
 {
-	char *wp = word;
 	int stringSize = strlen(word);
 
 	if(bufp >= BUFSIZE)

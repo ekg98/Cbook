@@ -23,15 +23,11 @@ int main()
 	{
 		if(c == '#')
 		{
-			wp = c;	// put # in the string
-			wp++;
+			*wp++ = c;	// put # in the string
 
 			while(isalpha(c = getch()))	// get the next character and check if its a letter
-			{
-				wp = c;
-				wp++;
-			}
-
+				*wp++ = c;
+			
 			wp = '\0';
 			ungetch(c);
 
