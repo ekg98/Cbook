@@ -3,35 +3,51 @@
 // Modified from ex6-5.
 
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 #include "nlist.h"
 #include "tablelookup.h"
+#include "getungetch.h"
+#include "getaword.h"
+
+#define MAXWORD	1000
 
 int main()
 {
-	struct nlist *hellolookup = NULL;
+	struct nlist *definetable = NULL;
+	char c, word[MAXWORD];
+	char name[MAXWORD], defn[MAXWORD];
+	char *wp = word;
 
-	// install:  substitute Hello when looking up Hi
-	install("Hi", "Hello");
+	while((c = getch()) != EOF)
+	{
+		if(c == '#')
+		{
+			wp = c;	// put # in the string
+			wp++;
 
-	// lookup:  Looking up Hi
-	if((hellolookup = lookup("Hi")) != NULL)
-		printf("before undef: %s = %s\n", hellolookup->name, hellolookup->defn);
-	else
-		printf("before undef: NULL\n");
+			while(isalpha(c = getch()))	// get the next character and check if its a letter
+			{
+				wp = c;
+				wp++;
+			}
 
+			wp = '\0';
+			ungetch(c);
 
-	// undef me
-	if(undef("Hi"))
-		printf("Undef sucessful.\n");
-	else
-		printf("Undef unsucessful.\n");
+			if(strcmp(word, "#define") == 0)	// assumes after define there is a name and a definition and adds them to the table
+			{
+				getaword(name, MAXWORD);
+				getaword(defn, MAXWORD);
 
-
-	// check it after undef
-	if((hellolookup = lookup("Hi")) != NULL)
-		printf("after undef: %s = %s\n", hellolookup->name, hellolookup->defn);
-	else
-		printf("after undef: NULL\n");
+				definetable = install(name, defn);
+			}
+			else
+				ungets(word);
+		}
+		else
+			printf("%c", c);
+	}
 
 	return 0;
 }
