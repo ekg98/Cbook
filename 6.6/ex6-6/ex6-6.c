@@ -18,6 +18,7 @@ int main()
 	struct nlist *definetable = NULL;
 	char c, word[MAXWORD];
 	char name[MAXWORD], defn[MAXWORD];
+	int letterCounter = 0;
 
 	while((c = getch()) != EOF)
 	{
@@ -30,7 +31,7 @@ int main()
 			while(isalpha(c = getch()))	// get the next character and check if its a letter
 				*wp++ = c;
 
-			wp = '\0';
+			*wp = '\0';
 			ungetch(c);
 
 			if(strcmp(word, "#define") == 0)	// assumes after define there is a name and a definition and adds them to the table
@@ -41,7 +42,7 @@ int main()
 				definetable = install(name, defn);
 			}
 			else
-				ungets(word);
+				printf("%s", word);
 		}
 		else if(isalpha(c))
 		{
@@ -52,6 +53,24 @@ int main()
 				printf("%s", definetable->defn);
 			else
 				printf("%s", word);
+		}
+		else if(c == '"')
+		{
+			*wp++ = c;
+
+			while((c = getch()) != '"' && c != '\n' && letterCounter < MAXWORD)
+			{
+				*wp++ = c;
+				letterCounter++;
+			}
+			
+			*wp = '\0';
+			printf("%s", word);
+
+			if(letterCounter > 0 && c == '"')
+				printf("\"");
+
+			letterCounter = 0;
 		}
 		else
 			printf("%c", c);
