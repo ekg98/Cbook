@@ -14,61 +14,13 @@ int getaword(char *word, int lim)
 	if(c != EOF)
 		*w++ = c;
 
-	/* comments */
-	if(c == '/')
+	if(isdigit(c))
 	{
-		*w = getch();
-		if(*w  == '*')
-		{
-			w++;
-			for(; --lim > 0; w++)
-			{
-				*w = getch();
-				if(*w == '/' && c == '*')	/* tests to see if c previously held asterisk */
-				{
-					w++;
-					break;
-				}
+		while(isdigit(c = getch()))
+			*w++ = c;
 
-				c = *w;				/* if the loop got this far store previous character in c for next run's check */
-			}
-		}
-		else if(*w == '/')	// checks for cpp style comments
-		{
-			w++;
-			for(; --lim > 0; w++)
-			{
-				*w = getch();
-				if(*w == '\n')
-					break;
-			}
-		}
+		ungetch(c);
 	}
-	/* preprocessor control directives */
-	else if(c == '#')
-	{
-		for(; --lim > 0; w++)
-			if(!isalnum(*w = getch()))
-			{
-				ungetch(*w);
-				break;
-			}
-	}
-	/* string constants */
-	else if(c == '"')
-	{
-		for(; --lim > 0; w++)
-		{
-			*w = getch();
-
-			if(*w == '"' || *w == '\n')
-			{
-				w++;
-				break;
-			}
-		}
-	}
-	/* keywords now accepts underscores */
 	else
 	{
 		if(!(isalpha(c) || c == '_'))
