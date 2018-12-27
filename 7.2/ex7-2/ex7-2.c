@@ -13,7 +13,7 @@ int main()
 		if(isgraph(c))
 			putchar(c);
 		else
-			printf("%x", c);
+			printf("%#X", c);
 	}
 	return 0;
 }
