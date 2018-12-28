@@ -4,16 +4,28 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#define	LINESIZE	50
+
 int main()
 {
-	int c;
+	int c, lineCounter = 0;
 
 	while((c = getchar()) != EOF)
 	{
+		if(lineCounter < LINESIZE)
+			;
+		else
+		{
+			putchar('\n');
+			lineCounter = 0;
+		}
+
 		if(isgraph(c))
 			putchar(c);
 		else
 			printf("%#X", c);
+
+		lineCounter++;
 	}
 	return 0;
 }
