@@ -210,7 +210,14 @@ int minscanf(char *fmt, ...)
 				}
 				break;
 			default:
-				
+				matches = scanf(formatList);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 		}
 
