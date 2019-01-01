@@ -4,28 +4,31 @@
 #include <stdio.h>
 #include <ctype.h>
 
-void minscanf(char *, ...);
+int minscanf(char *, ...);
 
 int main()
 {
-	int intNumber = 100;
-	float floatNumber = 100.0;
-	char character = 100;
-	
+	int intNumber, intNumberTwo;
+	float floatNumber;
+	char character;
+
+	minscanf("%d %d", &intNumber, &intNumberTwo);
+	printf("intNumber = %d %d\n", intNumber, intNumberTwo);
 
 	return 0;
 }
 
-void minscanf(char *fmt, ...)
+int minscanf(char *fmt, ...)
 {
 	va_list ap;	// points to each unnamed arg in turn
 	char *p, *sval;
-	int ival;
-	double dval;
-	int cval;
-	unsigned int oval, xval, uval;
+	int *ival;
+	double *dval;
+	int *cval;
+	unsigned int *oval, *xval, *uval;
 	char formatList[20];
 	char *fmtList = formatList;
+	int matches, totalMatches;
 
 	va_start(ap, fmt);	// make ap point to 1st unnamed arg
 
@@ -33,11 +36,11 @@ void minscanf(char *fmt, ...)
 	{
 		if(*p != '%')
 		{
-			putchar(*p);
+			*fmtList++ = *p;
 			continue;
 		}
 		else
-			*fmtList++ = *p;
+			*fmtList++ = *p;	// p is % add to string
 
 		while(*(p + 1) != '\0' && !isalpha(*(p + 1)))
 		{
@@ -52,64 +55,162 @@ void minscanf(char *fmt, ...)
 		switch(*++p)
 		{
 			case 'c':
-				cval = va_arg(ap, int);
-				printf(formatList, cval);
+				cval = va_arg(ap, int *);
+				matches = scanf(formatList, cval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 's':
-				for(sval = va_arg(ap ,char *); *sval; sval++)
-					putchar(*sval);
+				sval = va_arg(ap ,char *);
+				matches = scanf(formatList, sval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'd':
 			case 'i':
-				ival = va_arg(ap, int);
-				printf(formatList, ival);
+				ival = va_arg(ap, int *);
+				matches = scanf(formatList, ival);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'o':
-				oval = va_arg(ap, unsigned int);
-				printf(formatList, oval);
+				oval = va_arg(ap, unsigned int *);
+				matches = scanf(formatList, oval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'x':
-				xval = va_arg(ap, unsigned int);
-				printf(formatList, xval);
+				xval = va_arg(ap, unsigned int *);
+				matches = scanf(formatList, xval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'X':
-				xval = va_arg(ap, unsigned int);
-				printf(formatList, xval);
+				xval = va_arg(ap, unsigned int *);
+				matches = scanf(formatList, xval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'u':
-				uval = va_arg(ap, unsigned int);
-				printf(formatList, uval);
+				uval = va_arg(ap, unsigned int *);
+				matches = scanf(formatList, uval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'f':
-				dval = va_arg(ap ,double);
-				printf(formatList, dval);
+				dval = va_arg(ap ,double *);
+				matches = scanf(formatList, dval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'e':
-				dval = va_arg(ap, double);
-				printf(formatList, dval);
+				dval = va_arg(ap, double *);
+				matches = scanf(formatList, dval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'E':
-				dval = va_arg(ap, double);
-				printf(formatList, dval);
+				dval = va_arg(ap, double *);
+				matches = scanf(formatList, dval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'a':
-				dval = va_arg(ap, double);
-				printf(formatList, dval);
+				dval = va_arg(ap, double *);
+				matches = scanf(formatList, dval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'A':
-				dval = va_arg(ap, double);
-				printf(formatList, dval);
+				dval = va_arg(ap, double *);
+				matches = scanf(formatList, dval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'g':
-				dval = va_arg(ap, double);
-				printf(formatList, dval);
+				dval = va_arg(ap, double *);
+				matches = scanf(formatList, dval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			case 'G':
-				dval = va_arg(ap, double);
-				printf(formatList, dval);
+				dval = va_arg(ap, double *);
+				matches = scanf(formatList, dval);
+				if(matches > 0)
+					totalMatches += matches;
+				else
+				{
+					va_end(ap);
+					return 0;
+				}
 				break;
 			default:
-				putchar(*p);
+				
 				break;
 		}
 
@@ -117,4 +218,5 @@ void minscanf(char *fmt, ...)
 	}
 
 	va_end(ap);	// clean up when done
+	return totalMatches;
 }
