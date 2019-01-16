@@ -3,18 +3,25 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "getaline.h"
 #include "filestruct.h"
 
 #define MAXLINE	1000
 
+int openFileStructure(struct fileStructure *, char *[], int *);	// returns amount of files opened.
+
 int main(int argc, char *argv[])
 {
 	char line[MAXLINE];
 	long lineno = 0;
-	int c, except = 0, number = 0, found = 0;
+	int c, except = 0, number = 0, found = 0, filesOpened;
+	struct fileStructure *root = NULL;
+	struct fileStructure *tempfsp = NULL;
 
-	// check for files here.  Go throught argc until you hit a - or until file can't be found.  Record number of files found, if 0 files are found set structure to use stdin
+	filesOpened = openFileStructure(root, argv, &argc);
+
+	printf("Files Opened - %d\n", filesOpened);
 
 	while(--argc > 0 && (*++argv)[0] == '-')		// this checks removes a argument from argc and checks for - in that agrument
 	{
@@ -37,21 +44,83 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	// adjust to use structure of file pointers
+
 	if(argc != 1)
-		printf("Useage: find -x -n pattern\n");
+		printf("Useage: find [files] -x -n pattern\n");
 	else
-		while(getaline(line, MAXLINE) > 0)
+	{
+		if(filesOpened == 0)
 		{
-			lineno++;
-			if((strstr(line, *argv) != NULL) != except)
+			while(getaline(stdin, line, MAXLINE) > 0)
 			{
-				if(number)
-					printf("%ld:", lineno);
-				printf("%s", line);
-				found++;
+				lineno++;
+				if((strstr(line, *argv) != NULL) != except)
+				{
+					if(number)
+						printf("%ld:", lineno);
+						printf("%s", line);
+						found++;
+				}
 			}
 		}
+		else	// if detected files as input use them as the stream
+		{
+			tempfsp = root;
+			while(tempfsp != NULL)
+			{
+				while(getaline(tempfsp->filePointer, line, MAXLINE) > 0)
+				{
+					lineno++;
+					if((strstr(line, *argv) != NULL) != except)
+					{
+						if(number)
+							printf("%ld:", lineno);
+							printf("%s", line);
+							found++;
+					}
+				}
 
+				tempfsp = tempfsp->next;
+			}
+		}
+	}
+
+	// close files here
 	return found;
+}
+
+int openFileStructure(struct fileStructure *rootFileStructure, char *strings[], int *argQuantity)
+{
+	int filesOpened = 0;
+	FILE *fp = NULL;
+	struct fileStructure *newFileStructure = NULL;
+
+	if(*argQuantity > 1)
+	{
+		while(*argQuantity > 1 && (fp = fopen(*++strings,"r")) != NULL)
+		{
+			--argQuantity;
+			++filesOpened;
+
+			if(rootFileStructure == NULL)	// if root does not contain a sucessive entry
+			{
+				rootFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
+				rootFileStructure->next = NULL;
+				rootFileStructure->filePointer = fp;
+				rootFileStructure->fileName = *strings;
+			}
+			else	// one is on the line.  We need to create space and add it to the beginning.
+			{
+				newFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
+				newFileStructure->filePointer = fp;
+				newFileStructure->fileName = *strings;
+				newFileStructure->next = rootFileStructure;
+				rootFileStructure = newFileStructure;
+			}
+		}
+	}
+	else
+		rootFileStructure = NULL;
+
+	return filesOpened;
 }

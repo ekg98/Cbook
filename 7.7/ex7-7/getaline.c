@@ -2,13 +2,13 @@
 
 #include <stdio.h>
 
-int getaline(char *s, int lim)
+int getaline(FILE inputfp*, char *s, int lim)
 {
 	int c, i;
 
 	i = 0;
 
-	while(--lim > 0 && (c = getchar()) != EOF && c != '\n')
+	while(--lim > 0 && (c = fgetc(inputfp)) != EOF && c != '\n')
 		s[i++] = c;
 
 	if(c == '\n')

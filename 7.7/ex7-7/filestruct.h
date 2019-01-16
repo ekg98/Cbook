@@ -1,7 +1,8 @@
 // Header to hold structure information for ex7-7
 
-struct filestructure
+struct fileStructure
 {
-	FILE *filepointer;
-	char *filename;
+	FILE *filePointer;
+	char *fileName;
+	struct fileStructure *next;
 };

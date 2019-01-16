@@ -1,3 +1,3 @@
 /* Function declarations for getaline */
 
-int getaline(char *s, int lim);
+int getaline(FILE *, char *s, int lim);
