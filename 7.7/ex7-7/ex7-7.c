@@ -10,12 +10,13 @@
 #define MAXLINE	1000
 
 int openFileStructure(struct fileStructure **, char **[], int *);	// returns amount of files opened.
+int closeFileStructure(struct fileStructure **);
 
 int main(int argc, char *argv[])
 {
 	char line[MAXLINE];
 	long lineno = 0;
-	int c, except = 0, number = 0, found = 0, filesOpened;
+	int c, except = 0, number = 0, found = 0, filesOpened, filesClosed;
 	struct fileStructure *root = NULL;
 	struct fileStructure *tempfsp = NULL;
 
@@ -34,7 +35,7 @@ int main(int argc, char *argv[])
 					number = 1;
 					break;
 				default:
-					printf("find: illegal option %c\n", c);
+					fprintf(stderr, "find: illegal option %c\n", c);
 					argc = 0;
 					found = -1;
 					break;
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
 	}
 
 	if(argc != 1)
-		printf("Useage: find [files] -x -n pattern\n");
+		fprintf(stderr, "Useage: find [files] -x -n pattern\n");
 	else
 	{
 		if(filesOpened == 0)
@@ -87,6 +88,11 @@ int main(int argc, char *argv[])
 	}
 
 	// close files here and free structure
+	filesClosed = closeFileStructure(&root);
+
+	if(filesClosed != filesOpened)
+		fprintf(stderr, "Error closing files.\n");
+
 	return found;
 }
 
@@ -126,4 +132,25 @@ int openFileStructure(struct fileStructure **rootFileStructure, char **strings[]
 		*rootFileStructure = NULL;
 
 	return filesOpened;
+}
+
+// closeFileStructure:  Closes and frees the file structure and associatied memory
+int closeFileStructure(struct fileStructure **rootFileStructure)
+{
+	int amountClosed = 0;
+	struct fileStructure *tempFileStructure = NULL;
+
+	while(*rootFileStructure != NULL)
+	{
+		tempFileStructure = (*rootFileStructure)->next;
+
+		if(fclose((*rootFileStructure)->filePointer) == 0)
+			++amountClosed;
+			
+		free(*rootFileStructure);
+
+		*rootFileStructure = tempFileStructure;
+	}
+
+	return amountClosed;
 }
