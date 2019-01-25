@@ -9,7 +9,7 @@
 
 #define MAXLINE	1000
 
-int openFileStructure(struct fileStructure *, char *[], int *);	// returns amount of files opened.
+int openFileStructure(struct fileStructure **, char **[], int *);	// returns amount of files opened.
 
 int main(int argc, char *argv[])
 {
@@ -19,9 +19,7 @@ int main(int argc, char *argv[])
 	struct fileStructure *root = NULL;
 	struct fileStructure *tempfsp = NULL;
 
-	filesOpened = openFileStructure(root, argv, &argc);
-
-	printf("Files Opened - %d\n", filesOpened);
+	filesOpened = openFileStructure(&root, &argv, &argc);
 
 	while(--argc > 0 && (*++argv)[0] == '-')		// this checks removes a argument from argc and checks for - in that agrument
 	{
@@ -44,7 +42,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
 	if(argc != 1)
 		printf("Useage: find [files] -x -n pattern\n");
 	else
@@ -66,6 +63,10 @@ int main(int argc, char *argv[])
 		else	// if detected files as input use them as the stream
 		{
 			tempfsp = root;
+
+			if(tempfsp == NULL || root == NULL)
+				printf("NULL\n");
+
 			while(tempfsp != NULL)
 			{
 				while(getaline(tempfsp->filePointer, line, MAXLINE) > 0)
@@ -85,11 +86,12 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	// close files here
+	// close files here and free structure
 	return found;
 }
 
-int openFileStructure(struct fileStructure *rootFileStructure, char *strings[], int *argQuantity)
+// openFileStructure:  Takes a initial structure and argv and argc.  Populates the structure with the correct locations of the file pointers.
+int openFileStructure(struct fileStructure **rootFileStructure, char **strings[], int *argQuantity)
 {
 	int filesOpened = 0;
 	FILE *fp = NULL;
@@ -97,30 +99,31 @@ int openFileStructure(struct fileStructure *rootFileStructure, char *strings[], 
 
 	if(*argQuantity > 1)
 	{
-		while(*argQuantity > 1 && (fp = fopen(*++strings,"r")) != NULL)
+		while(*argQuantity > 1 && (fp = fopen(*++(*strings), "r")) != NULL)
 		{
-			--argQuantity;
+			--*argQuantity;
 			++filesOpened;
 
-			if(rootFileStructure == NULL)	// if root does not contain a sucessive entry
+			if(*rootFileStructure == NULL)	// if root does not contain a sucessive entry
 			{
-				rootFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
-				rootFileStructure->next = NULL;
-				rootFileStructure->filePointer = fp;
-				rootFileStructure->fileName = *strings;
+				*rootFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
+				(*rootFileStructure)->next = NULL;
+				(*rootFileStructure)->filePointer = fp;
+				(*rootFileStructure)->fileName = **strings;
 			}
 			else	// one is on the line.  We need to create space and add it to the beginning.
 			{
 				newFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
 				newFileStructure->filePointer = fp;
-				newFileStructure->fileName = *strings;
-				newFileStructure->next = rootFileStructure;
-				rootFileStructure = newFileStructure;
+				newFileStructure->fileName = **strings;
+				newFileStructure->next = *rootFileStructure;
+				*rootFileStructure = newFileStructure;
 			}
 		}
+		*--(*strings);
 	}
 	else
-		rootFileStructure = NULL;
+		*rootFileStructure = NULL;
 
 	return filesOpened;
 }

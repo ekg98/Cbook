@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-int getaline(FILE inputfp*, char *s, int lim)
+int getaline(FILE *inputfp, char *s, int lim)
 {
 	int c, i;
 
