@@ -1,5 +1,4 @@
-// Exercise 7-7.  Modify the pattern finding program of Chapter 5 to take its input from a set of named files or, if no files are named as arguments ,from the standard input.
-// Should the file name be printed when a matching line is found?
+// Exercise 7-8.  Write a program to print a set of files, starting each new one on a new page, with a title and a running page count for each file.
 
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +7,7 @@
 #include "filestruct.h"
 
 #define MAXLINE	1000
+#define PAGELENGTH	15
 
 int openFileStructure(struct fileStructure **, char **[], int *);	// returns amount of files opened.
 int closeFileStructure(struct fileStructure **);
@@ -20,75 +20,11 @@ int main(int argc, char *argv[])
 	struct fileStructure *root = NULL;
 	struct fileStructure *tempfsp = NULL;
 
-	filesOpened = openFileStructure(&root, &argv, &argc);
-
-	while(--argc > 0 && (*++argv)[0] == '-')		// this checks removes a argument from argc and checks for - in that agrument
-	{
-		while(c = *++argv[0])
-		{
-			switch(c)
-			{
-				case 'x':
-					except = 1;
-					break;
-				case 'n':
-					number = 1;
-					break;
-				default:
-					fprintf(stderr, "find: illegal option %c\n", c);
-					argc = 0;
-					found = -1;
-					break;
-			}
-		}
-	}
-
-	if(argc != 1)
-		fprintf(stderr, "Useage: find [files] -x -n pattern\n");
+	if(argc == 1)
+		fprintf(stderr, "Useage: %s [files]\n", argv[0]);
 	else
 	{
-		if(filesOpened == 0)
-		{
-			while(getaline(stdin, line, MAXLINE) > 0)
-			{
-				lineno++;
-				if((strstr(line, *argv) != NULL) != except)
-				{
-					if(number)
-						printf("%ld:", lineno);
-
-					printf("%s", line);
-					found++;
-				}
-			}
-		}
-		else	// if detected files as input use them as the stream
-		{
-			tempfsp = root;
-
-			if(tempfsp == NULL || root == NULL)
-				printf("NULL\n");
-
-			while(tempfsp != NULL)
-			{
-				while(getaline(tempfsp->filePointer, line, MAXLINE) > 0)
-				{
-					lineno++;
-					if((strstr(line, *argv) != NULL) != except)
-					{
-						printf("%s ", tempfsp->fileName);
-
-						if(number)
-							printf("%ld:", lineno);
-
-						printf("%s", line);
-						found++;
-					}
-				}
-
-				tempfsp = tempfsp->next;
-			}
-		}
+		filesOpened = openFileStructure(&root, &argv, &argc);
 	}
 
 	// close files here and free structure
