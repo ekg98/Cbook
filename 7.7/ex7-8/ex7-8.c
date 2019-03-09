@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
 {
 	char line[MAXLINE];
 	long lineno = 0;
-	int c, except = 0, number = 0, found = 0, filesOpened, filesClosed;
+	int c, except = 0, number = 0, found = 0, filesOpened, filesClosed, fileNameSize = 0;
+	int pageCount = 0;
 	struct fileStructure *root = NULL;
 	struct fileStructure *tempfsp = NULL;
 
@@ -25,6 +26,25 @@ int main(int argc, char *argv[])
 	else
 	{
 		filesOpened = openFileStructure(&root, &argv, &argc);
+
+		tempfsp = root;
+
+		while(tempfsp != NULL)	// each file
+		{
+			printf("%s\n", tempfsp->fileName);	// print fileName header
+			++lineno;
+
+			fileNameSize = strlen(tempfsp->fileName);	// prints nice lined bar
+			while(fileNameSize--)
+				printf("-");
+			printf("\n");
+			++lineno;
+
+
+
+			tempfsp = tempfsp->next;	// advances to next file
+			lineno = 0;
+		}
 	}
 
 	// close files here and free structure
@@ -33,7 +53,7 @@ int main(int argc, char *argv[])
 	if(filesClosed != filesOpened)
 		fprintf(stderr, "Error closing files.\n");
 
-	return found;
+	return 0;
 }
 
 // openFileStructure:  Takes a initial structure and argv and argc.  Populates the structure with the correct locations of the file pointers.
