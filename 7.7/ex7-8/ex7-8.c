@@ -43,14 +43,18 @@ int main(int argc, char *argv[])
 			// put char by char
 			while(!feof(tempfsp->filePointer))
 			{
-				// puts char by char on the screen and if it finds a newline increment the counter.
-				if(fputc(stdout, tempfsp->filePointer) == '\n')
+				// get the next character from filePointer and if it finds a newline increment the counter.
+				if((c = fgetc(tempfsp->filePointer)) == '\n')
 					++lineno;
 
+				// puts the character on the screen but only if its not end of file.
+				if(c != EOF)
+					fputc(c, stdout);
+
 				// prints the page number and resets the counter for the next page.
-				if((lineno + 1) == PAGELENGTH)
+				if((lineno + 2) == PAGELENGTH)
 				{
-					fprintf(stdout, "\nPage %d\n", pageCount);
+					fprintf(stdout, "\n\nPage %d\n", pageCount);
 					lineno = 0;
 					pageCount += 1;
 				}
