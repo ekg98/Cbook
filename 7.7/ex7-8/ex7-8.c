@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	char line[MAXLINE];
 	long lineno = 0;
 	int c, except = 0, number = 0, found = 0, filesOpened, filesClosed, fileNameSize = 0;
-	int pageCount = 0;
+	int pageCount = 1;
 	struct fileStructure *root = NULL;
 	struct fileStructure *tempfsp = NULL;
 
@@ -40,7 +40,21 @@ int main(int argc, char *argv[])
 			printf("\n");
 			++lineno;
 
+			// put char by char
+			while(!feof(tempfsp->filePointer))
+			{
+				// puts char by char on the screen and if it finds a newline increment the counter.
+				if(fputc(stdout, tempfsp->filePointer) == '\n')
+					++lineno;
 
+				// prints the page number and resets the counter for the next page.
+				if((lineno + 1) == PAGELENGTH)
+				{
+					fprintf(stdout, "\nPage %d\n", pageCount);
+					lineno = 0;
+					pageCount += 1;
+				}
+			}
 
 			tempfsp = tempfsp->next;	// advances to next file
 			lineno = 0;
