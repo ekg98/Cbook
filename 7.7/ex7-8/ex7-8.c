@@ -54,10 +54,28 @@ int main(int argc, char *argv[])
 				// prints the page number and resets the counter for the next page.
 				if((lineno + 2) == PAGELENGTH)
 				{
-					fprintf(stdout, "\n\nPage %d\n", pageCount);
+					fprintf(stdout, "\nPage %d\n", pageCount);
 					lineno = 0;
 					pageCount += 1;
-				}
+				}	
+			}
+
+			// if did not encounter end of a page
+
+			if(lineno > 0 && lineno < PAGELENGTH)
+			{
+				while((lineno++ - 1) < PAGELENGTH)
+					fprintf(stdout, ".\n");
+
+				fprintf(stdout, "\nPage %d\n", pageCount);
+				lineno += 2;
+					
+				pageCount += 1;
+			}
+			else	// increment page counter on blank page
+			{
+				fprintf(stdout, "\nPage %d\n", pageCount);
+				pageCount += 1;
 			}
 
 			tempfsp = tempfsp->next;	// advances to next file
