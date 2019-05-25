@@ -8,6 +8,7 @@
 
 #define MAXLINE	1000
 #define PAGELENGTH	15
+#define	FOOTERSIZE	2
 
 int openFileStructure(struct fileStructure **, char **[], int *);	// returns amount of files opened.
 int closeFileStructure(struct fileStructure **);
@@ -64,8 +65,11 @@ int main(int argc, char *argv[])
 
 			if(lineno > 0 && lineno < PAGELENGTH)
 			{
-				while((lineno++ - 1) < PAGELENGTH)
-					fprintf(stdout, ".\n");
+				while(lineno < PAGELENGTH - FOOTERSIZE)
+				{
+					fprintf(stdout, "\n");
+					++lineno;
+				}
 
 				fprintf(stdout, "\nPage %d\n", pageCount);
 				lineno += 2;
@@ -106,6 +110,8 @@ int openFileStructure(struct fileStructure **rootFileStructure, char **strings[]
 			--*argQuantity;
 			++filesOpened;
 
+			printf("\n%s\n", **strings);
+
 			if(*rootFileStructure == NULL)	// if root does not contain a sucessive entry
 			{
 				*rootFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
@@ -122,10 +128,12 @@ int openFileStructure(struct fileStructure **rootFileStructure, char **strings[]
 				*rootFileStructure = newFileStructure;
 			}
 		}
-		*--(*strings);
 	}
 	else
 		*rootFileStructure = NULL;
+
+	printf("\nFirst: %s\n", (*rootFileStructure)->fileName);
+	printf("Second: %s\n", (*rootFileStructure)->next->fileName);
 
 	return filesOpened;
 }
