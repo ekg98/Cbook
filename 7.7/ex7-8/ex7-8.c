@@ -110,8 +110,6 @@ int openFileStructure(struct fileStructure **rootFileStructure, char **strings[]
 			--*argQuantity;
 			++filesOpened;
 
-			printf("\n%s\n", **strings);
-
 			if(*rootFileStructure == NULL)	// if root does not contain a sucessive entry
 			{
 				*rootFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
@@ -131,9 +129,6 @@ int openFileStructure(struct fileStructure **rootFileStructure, char **strings[]
 	}
 	else
 		*rootFileStructure = NULL;
-
-	printf("\nFirst: %s\n", (*rootFileStructure)->fileName);
-	printf("Second: %s\n", (*rootFileStructure)->next->fileName);
 
 	return filesOpened;
 }
