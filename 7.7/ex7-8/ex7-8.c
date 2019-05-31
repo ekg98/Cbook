@@ -102,6 +102,8 @@ int openFileStructure(struct fileStructure **rootFileStructure, char **strings[]
 	int filesOpened = 0;
 	FILE *fp = NULL;
 	struct fileStructure *newFileStructure = NULL;
+	struct fileStructure *walkingpointerFileStructure = NULL;
+	struct fileStructure *tempReversedFileStructure = NULL;
 
 	if(*argQuantity > 1)
 	{
@@ -109,22 +111,48 @@ int openFileStructure(struct fileStructure **rootFileStructure, char **strings[]
 		{
 			--*argQuantity;
 			++filesOpened;
-
-			if(*rootFileStructure == NULL)	// if root does not contain a sucessive entry
+		
+			// installs the file structure in reversed order into a temporary structure.
+			if(tempReversedFileStructure == NULL)	// if root does not contain a sucessive entry
 			{
-				*rootFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
-				(*rootFileStructure)->next = NULL;
-				(*rootFileStructure)->filePointer = fp;
-				(*rootFileStructure)->fileName = **strings;
+				tempReversedFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
+				tempReversedFileStructure->next = NULL;
+				tempReversedFileStructure->filePointer = fp;
+				tempReversedFileStructure->fileName = **strings;
 			}
 			else	// one is on the line.  We need to create space and add it to the beginning.
 			{
 				newFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
 				newFileStructure->filePointer = fp;
 				newFileStructure->fileName = **strings;
+				newFileStructure->next = tempReversedFileStructure;
+				tempReversedFileStructure = newFileStructure;
+			}
+		}
+
+		// uses walkingpointerFileStructure to walk through tempReversedFileStructure
+		walkingpointerFileStructure = tempReversedFileStructure;
+
+		while(walkingpointerFileStructure != NULL)
+		{
+			// installs the file structure in correct order into rootFileStructure
+			if(*rootFileStructure == NULL)	// if root does not contain a sucessive entry
+			{
+				*rootFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
+				(*rootFileStructure)->next = NULL;
+				(*rootFileStructure)->filePointer = walkingpointerFileStructure->filePointer;
+				(*rootFileStructure)->fileName = walkingpointerFileStructure->fileName;
+			}
+			else	// one is on the line.  We need to create space and add it to the beginning.
+			{
+				newFileStructure = (struct fileStructure *) malloc(sizeof (struct fileStructure));
+				newFileStructure->filePointer = walkingpointerFileStructure->filePointer;
+				newFileStructure->fileName = walkingpointerFileStructure->fileName;
 				newFileStructure->next = *rootFileStructure;
 				*rootFileStructure = newFileStructure;
 			}
+
+			walkingpointerFileStructure = walkingpointerFileStructure->next;
 		}
 	}
 	else
