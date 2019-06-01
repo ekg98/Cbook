@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 					fprintf(stdout, "\nPage %d\n", pageCount);
 					lineno = 0;
 					pageCount += 1;
-				}	
+				}
 			}
 
 			// if did not encounter end of a page
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
 				fprintf(stdout, "\nPage %d\n", pageCount);
 				lineno += 2;
-					
+
 				pageCount += 1;
 			}
 			else	// increment page counter on blank page
@@ -111,7 +111,7 @@ int openFileStructure(struct fileStructure **rootFileStructure, char **strings[]
 		{
 			--*argQuantity;
 			++filesOpened;
-		
+
 			// installs the file structure in reversed order into a temporary structure.
 			if(tempReversedFileStructure == NULL)	// if root does not contain a sucessive entry
 			{
@@ -154,6 +154,12 @@ int openFileStructure(struct fileStructure **rootFileStructure, char **strings[]
 
 			walkingpointerFileStructure = walkingpointerFileStructure->next;
 		}
+
+		// nulls all the pointers that were used
+		tempReversedFileStructure = NULL;
+		newFileStructure = NULL;
+		walkingpointerFileStructure = NULL;
+
 	}
 	else
 		*rootFileStructure = NULL;
@@ -178,6 +184,9 @@ int closeFileStructure(struct fileStructure **rootFileStructure)
 
 		*rootFileStructure = tempFileStructure;
 	}
+
+	// nulls temporary pointer
+	tempFileStructure = NULL;
 
 	return amountClosed;
 }
